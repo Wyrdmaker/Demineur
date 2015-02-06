@@ -63,6 +63,8 @@ class CaseLabel (t : UI, n : Int) extends Label with Colors{
 	def clear() = {
 		text = ""
 		discovered = false
+		listenTo(mouse.moves, mouse.clicks)
+		background = DarkOrange
 		border = Swing.LineBorder(new Color(0,0,0))
 	}
 }
