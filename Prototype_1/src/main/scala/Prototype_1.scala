@@ -1,9 +1,21 @@
 import scala.swing._
 import scala.swing.event._
-import javax.swing.ImageIcon
+import javax.swing.{ImageIcon, Icon}
 
-class CaseLabel (t : UI, n : Int) extends Label {
-	icon_= ( new ImageIcon("OrangeSquareIcon"))
+trait Colors  {
+	val DarkOrange = new Color(255,100,0)
+	val LightOrange = new Color(255,200,100)
+	val Red = new Color(255,50,50)
+}
+
+class CaseLabel (t : UI, n : Int) extends Label with Colors{
+	opaque = true
+		//disabledIcon_= (new ImageIcon("1.jpeg"))
+	//icon =  (new ImageIcon("1.png"))
+	background = (new Color(255,100,0))
+		//icon_= ( new ImageIcon("1.jpeg"))
+	//foreground_=(new Color(150,50,0))
+	repaint()
 	preferredSize = new Dimension(t.Case_Size,t.Case_Size)
 	private var discovered = false
 	var v = "?"
@@ -11,17 +23,31 @@ class CaseLabel (t : UI, n : Int) extends Label {
         listenTo(mouse.moves, mouse.clicks)
         reactions += {
                 case e : MouseEntered =>
-			if (!discovered)
-                        	border = Swing.LineBorder(new Color(255,0,0))
+			if (!discovered) 
+                    border = Swing.LineBorder(new Color(0,0,255),1)
                 case e : MouseExited =>
 			if (!discovered)
-                		border = Swing.LineBorder(new Color(0,0,0))
+                	border = Swing.LineBorder(new Color(0,0,0),1)
 		case e : MouseClicked =>
-			discoverMe()
-        }
+			if (e.peer.getButton == java.awt.event.MouseEvent.BUTTON1 && !flag())
+				discoverMe()
+			else if (e.peer.getButton == java.awt.event.MouseEvent.BUTTON3)
+				switch()
+			}
+	def flag(): Boolean ={
+		return background==Red
+	}
+
+	def switch() = {
+		background = if (flag()) DarkOrange else Red
+	}
 	def discoverMe() : Unit = {
 		if (!discovered) {
-			border = Swing.LineBorder(new Color(0,0,255))
+			deafTo(mouse.moves, mouse.clicks)
+			//icon = (new ImageIcon())
+			repaint()
+			background = (new Color(255,200,100))
+			border = Swing.LineBorder(new Color(0,0,0,100))
                 	discovered = true
 			t.add()
 			if (v == "?")
@@ -45,7 +71,8 @@ class GrilleMode(t : UI, x : Int = 0, y : Int = 0, b : Int = 0) extends MenuItem
 	def f = {
 		t.contents = new GridPanel(y,x){
                 	t.lstLabel = 0 until (x * y) map (n => new CaseLabel(t, n){
-                        	border = Swing.LineBorder(new Color(0,0,0))
+                        	//border = Swing.LineBorder(new Color(0,0,0))
+                        	border = Swing.LineBorder(new Color(0,0,0,255),1)
                         })
                 	contents ++= t.lstLabel
         t.preferredSize = new Dimension(x*(t.Case_Size) +15,y*(t.Case_Size) +15)
@@ -55,7 +82,7 @@ class GrilleMode(t : UI, x : Int = 0, y : Int = 0, b : Int = 0) extends MenuItem
         	t.nbDiscovered = 0
         	t.nbBombs = b
 	}
-	action = Action("Grille " + x + "x" + y + " (" + b + ")")(f)
+	action = Action("Grille " + x + "x" + y + " (" + b + ")")(f,f)
 	if (b == 0) {
                 action = new Action("Restart") {
                         def apply {
@@ -78,12 +105,12 @@ class UI extends MainFrame {
 	var lstLabel : IndexedSeq[CaseLabel] = IndexedSeq()
 	title = "Démineur"
 	preferredSize = new Dimension(300,300)
-	contents = new Label("Welcome ! ;)")
+	contents = new Label("Welcome ! ;)") 
 	menuBar = new MenuBar {
                 contents += new Menu("Game") {
                         contents += new GrilleMode(t, 9,9,10)
 			contents += new GrilleMode(t, 16,16,40)
-			contents += new GrilleMode(t, 16,16,99)
+			contents += new GrilleMode(t,16,16,99)
 			contents += new GrilleMode(t)
                 }
 		contents += new Menu("About") {
