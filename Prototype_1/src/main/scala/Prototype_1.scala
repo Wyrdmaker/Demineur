@@ -28,6 +28,7 @@ trait CaseLabelAttribute {
 
 class CaseLabel (t : UI, n : Int) extends Label with Colors with CaseLabelAttribute {
 	repaint()
+	font = new Font("Arial", 1, 36) // 0 pour normal, 1 pour gras, 2 pour italique ...
 	preferredSize = new Dimension(CaseSize,CaseSize)
 	private var discovered = false
 	var v = "?"
@@ -51,7 +52,7 @@ class CaseLabel (t : UI, n : Int) extends Label with Colors with CaseLabelAttrib
 	}
 
 	def switch() : Unit = {
-		background = if (flag()) LabelColorActif else LabelColorDetected
+		background = if (flag()) LabelColorNeutre else LabelColorDetected
 	}
 	def discoverMe() : Unit = {
 		if (!discovered) {
