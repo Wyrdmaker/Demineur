@@ -6,13 +6,23 @@ trait Colors  {
 	val DarkOrange = new Color(255,100,0)
 	val LightOrange = new Color(255,200,100)
 	val Red = new Color(255,50,50)
+	val ColorNum = List(
+		new Color(255,255,255),
+		new Color(0,0,255),
+		new Color(0,255,0),
+		new Color(255,0,0),
+		new Color(100,100,100),
+		new Color(150,0,175),
+		new Color(50,200,120),
+		new Color(200,120,50),
+		new Color(0,200,200)
+	)
+	val ColorBomb = new Color(255,255,255)
 }
 
 class CaseLabel (t : UI, n : Int) extends Label with Colors{
-	opaque = true
 		//disabledIcon_= (new ImageIcon("1.jpeg"))
 	//icon =  (new ImageIcon("1.png"))
-	background = (new Color(255,100,0))
 		//icon_= ( new ImageIcon("1.jpeg"))
 	//foreground_=(new Color(150,50,0))
 	repaint()
@@ -20,20 +30,20 @@ class CaseLabel (t : UI, n : Int) extends Label with Colors{
 	private var discovered = false
 	var v = "?"
 	var num = n
-        listenTo(mouse.moves, mouse.clicks)
+	clear()
         reactions += {
                 case e : MouseEntered =>
 			if (!discovered) 
-                    border = Swing.LineBorder(new Color(0,0,255),1)
+                    		border = Swing.LineBorder(new Color(0,0,255),1)
                 case e : MouseExited =>
 			if (!discovered)
-                	border = Swing.LineBorder(new Color(0,0,0),1)
+                		border = Swing.LineBorder(new Color(0,0,0),1)
 		case e : MouseClicked =>
 			if (e.peer.getButton == java.awt.event.MouseEvent.BUTTON1 && !flag())
 				discoverMe()
 			else if (e.peer.getButton == java.awt.event.MouseEvent.BUTTON3)
 				switch()
-			}
+	}
 	def flag(): Boolean ={
 		return background==Red
 	}
@@ -54,13 +64,20 @@ class CaseLabel (t : UI, n : Int) extends Label with Colors{
 				t.init(n)
 			text = v
 			v match {
-				case "b" => t.lose()
-				case "0" => t.spread(n)
-				case _   => ()
+				case "b" =>
+					background = Red
+					foreground = ColorBomb
+					t.lose()
+				case "0" =>
+					foreground = ColorNum(text.toInt)
+					t.spread(n)
+				case _   =>
+					foreground = ColorNum(text.toInt)
 			}
 		}
 	}
 	def clear() = {
+		opaque = true
 		text = ""
 		discovered = false
 		listenTo(mouse.moves, mouse.clicks)
@@ -168,9 +185,11 @@ class UI extends MainFrame {
 	}
 	def lose() = {
 		println("lose")
+		lstLabel.foreach(x => x.deafTo(x.mouse.moves, x.mouse.clicks))
 	}
 	def win() = {
 		println("win")
+		lstLabel.foreach(x => x.deafTo(x.mouse.moves, x.mouse.clicks))
 	}
 }
 
