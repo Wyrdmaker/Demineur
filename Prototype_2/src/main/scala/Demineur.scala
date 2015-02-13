@@ -39,7 +39,6 @@ class Grid [Init_Label_Class <: Label](row_size: Int, col_size: Int, fac: () => 
 	//val grid = new GridPanel(row_size,col_size)
 	//val l = Label()
 	//val ll = Label_Test_1()
-	var label_Matrix
 
 
 
