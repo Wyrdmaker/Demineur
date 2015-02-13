@@ -1,6 +1,6 @@
 import scala.swing._
 import scala.swing.event._
-import javax.swing.{ImageIcon, Icon}
+import scala.swing.BorderPanel.Position._
 
 trait Colors {
 	val LabelColorNeutre = new Color(255,100,0)
@@ -52,7 +52,14 @@ class CaseLabel (t : UI, n : Int) extends Label with Colors with CaseLabelAttrib
 	}
 
 	def switch() : Unit = {
-		background = if (flag()) LabelColorNeutre else LabelColorDetected
+		if (flag()) {
+			background = LabelColorNeutre
+			t.majBomb(-1)
+		}
+		else {
+			background = LabelColorDetected
+			t.majBomb(1)
+		}
 	}
 	def discoverMe() : Unit = {
 		if (!discovered) {
@@ -90,18 +97,39 @@ class CaseLabel (t : UI, n : Int) extends Label with Colors with CaseLabelAttrib
 
 class GrilleMode(t : UI, x : Int = 0, y : Int = 0, b : Int = 0) extends MenuItem("") with CaseLabelAttribute {
 	def creat = {
-		t.contents = new GridPanel(y + 1,x){
+		var grid = new GridPanel(y,x) {
                 	t.lstLabel = 0 until (x * y) map (n => new CaseLabel(t, n){
                         	border = Swing.LineBorder(new Color(0,0,0,255),1)
                         })
-                	contents ++= t.lstLabel
-			contents += new FlowPanel(new Label("B : "), new Label("0/10"), new Label(""))
-        		t.preferredSize = new Dimension(x * CaseSize + Marge,y * CaseSize + Marge)
+                        contents ++= t.lstLabel
+                }
+		var aff = new FlowPanel() {
+                	contents += t.labelBomb
+                	contents += t.labelFin
+			contents += t.labelChrono
+			t.labelBomb.preferredSize = new Dimension(x * CaseSize / 3, 30)
+			t.labelFin.preferredSize = new Dimension(x * CaseSize / 3, 30)
+			t.labelChrono.preferredSize = new Dimension(x * CaseSize / 3, 30)
+                }
+		t.contents = new BorderPanel {
+			layout(grid) = North
+			layout(aff) = South
 		}
 		t.x = x
 	        t.y = y
         	t.nbDiscovered = 0
         	t.nbBombs = b
+		t.nbDetected = 0
+		t.labelBomb.text = ""
+		t.chrono = 0
+		var timeOut = new javax.swing.AbstractAction() {
+                	def actionPerformed(e : java.awt.event.ActionEvent) = {
+				t.chrono += 1
+				t.labelChrono.text = t.chrono.toString
+			}
+        	}
+        	var timer = new javax.swing.Timer(1000, timeOut)
+		timer.start()
 	}
 	action = Action("Grille " + x + "x" + y + " (" + b + ")")(creat)
 	if (b == 0) {
@@ -116,16 +144,23 @@ class GrilleMode(t : UI, x : Int = 0, y : Int = 0, b : Int = 0) extends MenuItem
 }
 
 
-class UI extends MainFrame {
+class UI extends MainFrame with Colors {
 	var x = 5
 	var y = 3
 	var t = this
 	var nbDiscovered = 0
+	var nbDetected = 0
 	var nbBombs = 0
+	var chrono = 0
 	var lstLabel : IndexedSeq[CaseLabel] = IndexedSeq()
+	var labelBomb = new Label()
+	var labelFin = new Label()
+	var labelChrono = new Label()
+	resizable = false
 	title = "Démineur"
-	preferredSize = new Dimension(300,300)
-	contents = new Label("Welcome ! ;)") 
+	contents = new Label("Welcome ! ;)") {
+		preferredSize = new Dimension(300,300)
+	}
 	menuBar = new MenuBar {
                 contents += new Menu("Game") {
                         contents += new GrilleMode(t, 9,9,10)
@@ -145,6 +180,14 @@ class UI extends MainFrame {
 		nbDiscovered += 1
 		if (nbDiscovered + nbBombs == x * y)
 			win()
+	}
+	def majBomb(n : Int) = {
+		nbDetected = nbDetected + n
+		labelBomb.text = "B : " + nbDetected.toString + " / " + nbBombs.toString
+		if (nbDetected > nbBombs)
+			labelBomb.foreground = LabelColorDetected
+		else
+			labelBomb.foreground = new Color(0,0,0)
 	}
 	def neighbour(n : Int) : List[Int] = {
 		var lst : List[Int]= List()
@@ -185,11 +228,13 @@ class UI extends MainFrame {
 		)
 	}
 	def lose() = {
-		println("lose")
+		labelFin.text = "GAME OVER !"
+		labelFin.background = new Color(255,0,0)
 		lstLabel.foreach(x => x.deafTo(x.mouse.moves, x.mouse.clicks))
 	}
 	def win() = {
-		println("win")
+                labelFin.text = "WIN !"
+                labelFin.background = new Color(0,255,0)
 		lstLabel.foreach(x => x.deafTo(x.mouse.moves, x.mouse.clicks))
 	}
 }
