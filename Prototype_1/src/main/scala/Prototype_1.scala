@@ -1,6 +1,10 @@
 import scala.swing._
 import scala.swing.event._
 import scala.swing.BorderPanel.Position._
+import java.util.{Date, Locale}
+import java.text.DateFormat
+import java.text.DateFormat._
+import java.text.SimpleDateFormat
 
 trait Colors {
 	val LabelColorNeutre = new Color(255,100,0)
@@ -9,9 +13,9 @@ trait Colors {
 	val ColorNum = List(
 		new Color(255,255,255),
 		new Color(0,0,255),
-		new Color(0,255,0),
+		new Color(0,200,0),
 		new Color(255,0,0),
-		new Color(100,100,100),
+		new Color(0,255,255),
 		new Color(150,0,175),
 		new Color(50,200,120),
 		new Color(200,120,50),
@@ -21,14 +25,13 @@ trait Colors {
 }
 
 trait CaseLabelAttribute {
-	val CaseSize = 50
+	val CaseSize = 40
 	val Marge = 15
 	val LabelBordure = Swing.LineBorder(new Color(0,0,0,100))
 }
 
 class CaseLabel (t : UI, n : Int) extends Label with Colors with CaseLabelAttribute {
-	repaint()
-	font = new Font("Arial", 1, 36) // 0 pour normal, 1 pour gras, 2 pour italique ...
+	font = new Font("Arial", 1, 32) // 0 pour normal, 1 pour gras, 2 pour italique ...
 	preferredSize = new Dimension(CaseSize,CaseSize)
 	private var discovered = false
 	var v = "?"
@@ -50,7 +53,6 @@ class CaseLabel (t : UI, n : Int) extends Label with Colors with CaseLabelAttrib
 	def flag(): Boolean = {
 		return background == LabelColorDetected
 	}
-
 	def switch() : Unit = {
 		if (flag()) {
 			background = LabelColorNeutre
@@ -121,15 +123,21 @@ class GrilleMode(t : UI, x : Int = 0, y : Int = 0, b : Int = 0) extends MenuItem
         	t.nbBombs = b
 		t.nbDetected = 0
 		t.labelBomb.text = ""
-		t.chrono = 0
-		var timeOut = new javax.swing.AbstractAction() {
-                	def actionPerformed(e : java.awt.event.ActionEvent) = {
-				t.chrono += 1
-				t.labelChrono.text = t.chrono.toString
-			}
-        	}
-        	var timer = new javax.swing.Timer(1000, timeOut)
-		timer.start()
+		t.majBomb(0)
+		t.timeBegin = new Date
+		t.inGame = true
+		var df = new SimpleDateFormat("mm:ss")
+		var timer = new javax.swing.Timer(1000, Swing.ActionListener(e => {
+			var minutes  = ((new Date).getTime() - t.timeBegin.getTime()) / 60000 % 60
+			var secondes = ((new Date).getTime() - t.timeBegin.getTime()) / 1000 % 60
+			var str = if (minutes < 10) "0" else ""
+			str = str + minutes.toString + ":"
+			str = if (secondes < 10) str + "0" else str
+			str = str + secondes.toString
+			if (t.inGame == true)
+                        	t.labelChrono.text = str
+    		}))
+    		timer.start()
 	}
 	action = Action("Grille " + x + "x" + y + " (" + b + ")")(creat)
 	if (b == 0) {
@@ -138,6 +146,11 @@ class GrilleMode(t : UI, x : Int = 0, y : Int = 0, b : Int = 0) extends MenuItem
                                 println(text)
 				t.lstLabel.foreach(l => l.clear())
 				t.nbDiscovered = 0
+				t.nbDetected = 0
+				t.majBomb(0)
+				t.timeBegin = new Date()
+				t.inGame = true
+				t.labelFin.text = ""
 			}
                 }
         }
@@ -151,7 +164,8 @@ class UI extends MainFrame with Colors {
 	var nbDiscovered = 0
 	var nbDetected = 0
 	var nbBombs = 0
-	var chrono = 0
+	var inGame = false
+	var timeBegin = new Date()
 	var lstLabel : IndexedSeq[CaseLabel] = IndexedSeq()
 	var labelBomb = new Label()
 	var labelFin = new Label()
@@ -228,11 +242,13 @@ class UI extends MainFrame with Colors {
 		)
 	}
 	def lose() = {
+		inGame = false
 		labelFin.text = "GAME OVER !"
 		labelFin.background = new Color(255,0,0)
 		lstLabel.foreach(x => x.deafTo(x.mouse.moves, x.mouse.clicks))
 	}
 	def win() = {
+		inGame = false
                 labelFin.text = "WIN !"
                 labelFin.background = new Color(0,255,0)
 		lstLabel.foreach(x => x.deafTo(x.mouse.moves, x.mouse.clicks))
