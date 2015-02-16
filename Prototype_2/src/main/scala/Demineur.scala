@@ -148,13 +148,26 @@ object Game {
 		
 	}*/
 
-	def game_starter(frame: Frame,nb_of_rows: Int, nb_of_cols: Int, nb_of_bombs: Int) = {
+	/*def game_starter(frame: Frame,nb_of_rows: Int, nb_of_cols: Int, nb_of_bombs: Int) = {
 		val grid = new Grid(nb_of_rows,nb_of_cols)
 		frame.contents = grid
+
+		//val str = grid.contents(3).asInstanceOf[String]
+		//str.asInstanceOf[Label].background = new Color(22,9,255)
+		//println("de")
+	}*/
+
+		/*"AM" -> "Action Maker"*/  //Pour pouvoir l'utiliser comme une action dans des menus alors que gamestarter prend des arguments
+	class AM_Game_Starter(frame: Frame,nb_of_rows: Int, nb_of_cols: Int, nb_of_bombs: Int) {
+		def action () = {
+			val grid = new Grid(nb_of_rows,nb_of_cols)
+			frame.contents = grid
+		}
 	}
+
 }
 
-// Ce serait cool de faire un truc plus générique ici
+/*// Ce serait cool de faire un truc plus générique ici
 	/*"MI" -> "MenuItem"*/
 class MI_Game_Starter (frame: Frame,nb_of_rows: Int, nb_of_cols: Int, nb_of_bombs: Int) extends MenuItem("") {
 	val title = "Grille "+ nb_of_rows + " * " + nb_of_cols + ", " + nb_of_bombs + " bombes"
@@ -166,11 +179,12 @@ class MI_Game_Starter (frame: Frame,nb_of_rows: Int, nb_of_cols: Int, nb_of_bomb
 	
 }
 	/*"PMI" -> "Parametrized MenuItem" Prend en argument une fonction qui renvoit Unit et ses arguments et*/
-class PMI () extends MenuItem{
+/*class PMI () extends MenuItem{
 
-}
+}*/
+*/
 
-
+/*
 object Action_Manager {
 
 	/*"am" -> "action maker"*/
@@ -192,6 +206,7 @@ object Action_Manager {
 		action_to_return
 	}
 }
+*/
 
 class UI extends MainFrame with Colors{
 	val thisui = this
@@ -206,14 +221,19 @@ class UI extends MainFrame with Colors{
 	//contents = new FlowPanel(new Label_Test_1, new Label_Test_2 )
 	menuBar = new MenuBar {
                 contents += new Menu("Game") {
-                    contents += new MenuItem(""){action = Action_Manager.am_game_starter("Grille 9*9, 10 bombes",thisui,9,9,10)}
-                    contents += new MenuItem(""){action = Action_Manager.am_game_starter("Grille 16*16, 40 bombes",thisui,16,16,40)}
-                    contents += new MenuItem(""){action = Action_Manager.am_game_starter("Grille 16*16, 99 bombes",thisui,16,16,99)}
-                    contents += new MI_Game_Starter(thisui,6,10,5)
+                    //contents += new MenuItem(""){action = Action_Manager.am_game_starter("Grille 9*9, 10 bombes",thisui,9,9,10)}
+                    //contents += new MenuItem(""){action = Action_Manager.am_game_starter("Grille 16*16, 40 bombes",thisui,16,16,40)}
+                    //contents += new MenuItem(""){action = Action_Manager.am_game_starter("Grille 16*16, 99 bombes",thisui,16,16,99)}
+                    //contents += new MI_Game_Starter(thisui,6,10,5)
+
+                    val am1 = new Game.AM_Game_Starter(thisui,9,9,10)
+					contents += new MenuItem(""){action = Action("Grille 9*9, 10 bombes")(am1.action)}
+                    val am2 = new Game.AM_Game_Starter(thisui,5,5,7)
+                    contents += new MenuItem(""){action = Action("Grille 5*5, 7 bombes")(am2.action)}
 			/*contents += new GrilleMode(t)*/
                 }
                 contents += new Menu("About") {
-                	contents +=new MenuItem(""){action = Action_Manager.a_about}
+                	//contents +=new MenuItem(""){action = Action_Manager.a_about}
                 }
     }
 
