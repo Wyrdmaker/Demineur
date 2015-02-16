@@ -144,12 +144,35 @@ object Game {
 	var in_game = false
 
 	//Example of what should be here:
-	def neighbour(n : Int) : List[Int] = {
+	/*def neighbour(n : Int) : List[Int] = {
 		
+	}*/
+
+	def game_starter(frame: Frame,nb_of_rows: Int, nb_of_cols: Int, nb_of_bombs: Int) = {
+		val grid = new Grid(nb_of_rows,nb_of_cols)
+		frame.contents = grid
 	}
 }
 
+// Ce serait cool de faire un truc plus générique ici
+	/*"MI" -> "MenuItem"*/
+class MI_Game_Starter (frame: Frame,nb_of_rows: Int, nb_of_cols: Int, nb_of_bombs: Int) extends MenuItem("") {
+	val title = "Grille "+ nb_of_rows + " * " + nb_of_cols + ", " + nb_of_bombs + " bombes"
+	/*action_function*/
+	def action_f = {
+		Game.game_starter(frame,nb_of_rows,nb_of_cols,nb_of_bombs)
+	}
+	action = Action(title)(action_f)
+	
+}
+	/*"PMI" -> "Parametrized MenuItem" Prend en argument une fonction qui renvoit Unit et ses arguments et*/
+class PMI () extends MenuItem{
+
+}
+
+
 object Action_Manager {
+
 	/*"am" -> "action maker"*/
 	def am_game_starter(title: String,/*arguments de game_starter->*/frame: Frame,nb_of_rows: Int, nb_of_cols: Int, nb_of_bombs: Int) = {
 		def game_starter = {
@@ -186,7 +209,7 @@ class UI extends MainFrame with Colors{
                     contents += new MenuItem(""){action = Action_Manager.am_game_starter("Grille 9*9, 10 bombes",thisui,9,9,10)}
                     contents += new MenuItem(""){action = Action_Manager.am_game_starter("Grille 16*16, 40 bombes",thisui,16,16,40)}
                     contents += new MenuItem(""){action = Action_Manager.am_game_starter("Grille 16*16, 99 bombes",thisui,16,16,99)}
-
+                    contents += new MI_Game_Starter(thisui,6,10,5)
 			/*contents += new GrilleMode(t)*/
                 }
                 contents += new Menu("About") {
