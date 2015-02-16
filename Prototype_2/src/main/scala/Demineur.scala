@@ -1,6 +1,12 @@
 import scala.swing._
 import scala.swing.event._
 import scala.swing.BorderPanel.Position._
+import java.util.{Date, Locale}
+import java.text.DateFormat
+import java.text.DateFormat._
+import java.text.SimpleDateFormat
+import java.awt.event.{ActionEvent, ActionListener}
+
 //import javax.swing.{ImageIcon, Icon}
 
 trait Colors {
@@ -17,10 +23,10 @@ trait Label_Borders extends Colors{
 	val black_Dim_Border = Swing.LineBorder(black_Dim)
 }
 
-trait Label_States extends Colors with Label_Borders{
+trait Label_States extends Colors with Label_Borders with Game_Data{
 	//state0=Label Unexplored//state1=Label Marqued//state2=Label Explored//
-	val s_size_x = 			Array(50,						50,						50)
-	val s_size_y = 			Array(50,						50,						50)
+	val s_size_x = 			Array(square_size_x,			square_size_x,			square_size_x)
+	val s_size_y = 			Array(square_size_y,			square_size_y,			square_size_y)
 	val s_label_bordure = 	Array(black_Border,				black_Border,			black_Dim_Border)
 	val s_opaque = 			Array(true,						true,					true)
 	val s_background = 		Array(label_Color_Unexplored,	label_Color_Marqued,	label_Color_Explored)
@@ -136,12 +142,19 @@ trait Grid_Panel_Attributes_1 {
 	change_To_State(this,0)
 		text = "TEST"
 }*/
-object Game {
+trait Game_Data {
+	var square_size_x = 50
+	var square_size_y = 50
+	var square_dimension = new Dimension(square_size_x,square_size_y)
+}
+
+object Game extends Game_Data{
 	val title = "Démineur"
 	var nb_discovered_square = 0
 	var nb_marqued_square = 0
 	var nb_of_bombs = 0
 	var in_game = false
+
 
 	//Example of what should be here:
 	/*def neighbour(n : Int) : List[Int] = {
@@ -160,12 +173,91 @@ object Game {
 		/*"AM" -> "Action Maker"*/  //Pour pouvoir l'utiliser comme une action dans des menus alors que gamestarter prend des arguments
 	class AM_Game_Starter(frame: Frame,nb_of_rows: Int, nb_of_cols: Int, nb_of_bombs: Int) {
 		def action () = {
+			var game_beginning_time = new Date()
+
 			val grid = new Grid(nb_of_rows,nb_of_cols)
 			frame.contents = grid
+
+			val timer_label = new Timer_Label(game_beginning_time)
+			timer_label.preferredSize = new Dimension(100,50)
+
+			val flow_panel = new FlowPanel() {
+				//Labels
+				contents += timer_label
+
+			}
+
+			val border_panel = new BorderPanel {
+				layout(grid) = North
+				layout(flow_panel) = South
+			}
+
+			frame.contents = border_panel
 		}
 	}
 
 }
+
+//Idée: écrire un truc pour qu'on puisse dire à une action de s'éxécuter dans n secondes (lance un timer avec timeout puis execute l'action)
+
+class Timer_Label (time_origin_arg : Date) extends Label{
+	val this_timer_label = this
+	var time_origin = time_origin_arg
+	var minutes = ((new Date).getTime() - time_origin.getTime()) / 60000 % 60
+	var secondes = ((new Date).getTime() - time_origin.getTime()) / 1000 % 60
+
+	def restart (new_time_origin: Date) = {
+		time_origin = new_time_origin
+		timer.start()
+	}
+
+	def start () = {
+		timer.start()
+	}
+
+	def stop () = {
+		timer.stop()
+	}
+	/*class Action_Listener extends ActionListener {
+		def actionPerformed(e: ActionEvent) {
+			var minutes  = ((new Date).getTime() - time_origin.getTime()) / 60000 % 60
+			var secondes = ((new Date).getTime() - time_origin.getTime()) / 1000 % 60
+			var str = if (minutes < 10) "0" else ""
+			str = str + minutes.toString + ":"
+			str = if (secondes < 10) str + "0" else str
+			str = str + secondes.toString
+		}
+	}*/
+	
+	val timer_listener = new ActionListener{
+		def actionPerformed(e: ActionEvent) {
+			minutes  = ((new Date).getTime() - time_origin.getTime()) / 60000 % 60
+			secondes = ((new Date).getTime() - time_origin.getTime()) / 1000 % 60
+			var string = if (minutes < 10) "0" else ""
+			string = string + minutes.toString + ":"
+			string = if (secondes < 10) string + "0" else string
+			string = string + secondes.toString
+			this_timer_label.text = string
+		}
+	}
+
+	val timer = new javax.swing.Timer(1, timer_listener)
+
+	timer.start()
+}
+
+/*
+class Timer extends javax.swing.Timer(1000, Swing.ActionListener(e => action_to_perform)) {
+	//actionPerformed = Swing.ActionListener(e => {})
+	def action_to_perform () = {
+
+	}
+	this.start
+} 
+
+class Timer_Action_Listener extends ActionListener {
+
+}*/
 
 /*// Ce serait cool de faire un truc plus générique ici
 	/*"MI" -> "MenuItem"*/
@@ -234,6 +326,7 @@ class UI extends MainFrame with Colors{
                 }
                 contents += new Menu("About") {
                 	//contents +=new MenuItem(""){action = Action_Manager.a_about}
+                	contents += new MenuItem(""){action = Action("Mysterious")(println("indeed !"))}
                 }
     }
 
