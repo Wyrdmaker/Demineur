@@ -10,29 +10,40 @@ import java.awt.event.{ActionEvent, ActionListener}
 //import javax.swing.{ImageIcon, Icon}
 
 trait Colors {
-	val label_Color_Unexplored = new Color(255,100,0)
-	val label_Color_Marqued = new Color(255,200,100)
-	val label_Color_Explored = new Color(255,50,50)
+	val label_color_unexplored = new Color(255,100,0)
+	val label_color_marqued = new Color(255,200,100)
+	val label_color_explored = new Color(255,50,50)
 
 	val black = new Color(0,0,0,255)
-	val black_Dim = new Color(0,0,0,100)
+	val black_dim = new Color(0,0,0,100)
+
+	val white = new Color(255,255,255)
+	val blue = new Color(0,0,255)
+	val green = new Color(0,200,0)
+	val red = new Color(255,0,0)
+	val cyan = new Color(0,255,255)
+	val purple = new Color(150,0,175)
+	val light_green = new Color(50,200,120)
+	val light_brown = new Color(200,120,50)
+	val color9 = new Color(0,200,200)
 }
 
 trait Label_Borders extends Colors{
-	val black_Border = Swing.LineBorder(black)
-	val black_Dim_Border = Swing.LineBorder(black_Dim)
+	val black_border = Swing.LineBorder(black,1)
+	val black_dim_border = Swing.LineBorder(black_dim)
+	val blue_border = Swing.LineBorder(blue,1)
 }
 
 trait Label_States extends Colors with Label_Borders with Game_Data{
 	//state0=Label Unexplored//state1=Label Marqued//state2=Label Explored//
 	val s_size_x = 			Array(square_size_x,			square_size_x,			square_size_x)
 	val s_size_y = 			Array(square_size_y,			square_size_y,			square_size_y)
-	val s_label_bordure = 	Array(black_Border,				black_Border,			black_Dim_Border)
+	val s_label_bordure = 	Array(black_border,				black_border,			black_dim_border)
 	val s_opaque = 			Array(true,						true,					true)
-	val s_background = 		Array(label_Color_Unexplored,	label_Color_Marqued,	label_Color_Explored)
+	val s_background = 		Array(label_color_unexplored,	label_color_marqued,	label_color_explored)
 	val s_foreground = 		Array(black,					black,					/*???*/black/*???*/)
 
-	def change_To_State(label : Label,no_state: Int): Unit ={
+	def change_to_state(label : Label,no_state: Int): Unit ={
 		label.preferredSize = new Dimension(s_size_x(no_state),s_size_y(no_state))
 		label.border = s_label_bordure(no_state)
 		label.opaque = s_opaque(no_state)
@@ -50,46 +61,46 @@ class Grid_Label extends Label with Colors with Label_Borders with Label_States{
 	var numero = 0
 	var state = 0
 
-	/*def factory () = {
-		val newlabel = new Grid_Label
-		change_To_State(newlabel,0)
-		newlabel
-	}*/
-	change_To_State(this,state)
-
-	font = new Font("Arial", 1, 32) // 0 pour normal, 1 pour gras, 2 pour italique ...
-
-	//def factory()
-}
-/* // Grid_Label était un abstract trait
-class Demineur_Label extends Grid_Label {
-		font = new Font("Arial", 1, 32) // 0 pour normal, 1 pour gras, 2 pour italique ...
-		def factory() = {
-			new Demineur_Label
-		}
-}*/
-
-
-/*Init_Label_Class doit etre un sous-type de la classe Grid_Label*/
-class Grid (row_size: Int, col_size: Int) extends GridPanel(row_size,col_size) {
-	val Marge = 10
-
-	/*
-	def factory() : Init_Label_Class = {
-		//manifest[Init_Label_Class].erasure.newInstance().asInstanceOf[Init_Label_Class]
-		mymanifest.erasure.newInstance().asInstanceOf[Init_Label_Class]
+	override def change_to_state (label: Label,no_state : Int): Unit ={
+		state = no_state
+		super.change_to_state(this,no_state)
 	}
-	*/
+}
 
+class Demineur_Label extends Grid_Label {
+	var discovered = false
+	font = new Font("Arial", 1, 32) // 0 pour normal, 1 pour gras, 2 pour italique ...
+	init()
+
+	def init() : Unit = {
+		change_to_state(this,0)
+		text = ""
+		listenTo(mouse.moves, mouse.clicks)
+	}
+
+	reactions += {
+        case e : MouseEntered =>
+			if (!discovered) 
+            	border = blue_border
+        case e : MouseExited =>
+			if (!discovered)
+          		border = black_border
+		case e : MouseClicked =>
+			//if (e.peer.getButton == java.awt.event.MouseEvent.BUTTON1 && !flag())
+				//discoverMe()
+			//else if (e.peer.getButton == java.awt.event.MouseEvent.BUTTON3)
+				//switch()
+	}
+}
+
+class Grid[Demineur_Label <: Grid_Label] (row_size: Int, col_size: Int, factory : Unit => Demineur_Label) extends GridPanel(row_size,col_size) {
+	//val Marge = 10
 	//Remplir la grille d'objet de la classe Grid_Label
 	for (cx<-1 to row_size) {
 		for (cy<- 1 to col_size) {
-			//val new_label = manifest[Grid_Label].erasure.newInstance().asInstanceOf[Init_Label_Class]
-			//val new_label = factory()
-			contents += {new Grid_Label{x=cx; y=cy; numero=(cy-1)*row_size + (x-1)} }
-			//val new_label = Init_Label_Class.factory()
-			//new_label.x = cx
-			//contents += {new_label}
+			val label = factory()
+			label.x = cx; label.y = cy; label.numero = (cy-1)*row_size +(cx-1);
+			contents += {label}
 		}
 	}
 
@@ -99,76 +110,6 @@ class Grid (row_size: Int, col_size: Int) extends GridPanel(row_size,col_size) {
 	}
 }
 
-/*
-class Grid [Init_Label_Class <: Grid_Label](row_size: Int, col_size: Int, fac: () => Init_Label_Class) extends GridPanel(row_size,col_size) {
-	//val label_Matrix = 
-	//val grid = new GridPanel(row_size,col_size)
-	//val l = Label()
-	//val ll = Label_Test_1()
-
-	val l = new Init_Label_Class
-
-	//Remplir la grille d'objet de type Init_Label_Class
-	for (i <- 1 to row_size*col_size) {
-		//contents += {Init_Label_Class.factory()}
-	}
-
-	//Renvoit le label de la case (x,y) (x et y commencent à 0)
-	def access(x: Int, y: Int) ={
-		contents(y*row_size + x)
-	}
-*/
-
-
-/*
-	var label_Matrix = Array(y_Array)
-	for (x <- 0 to (row_size - 1)) {
-		var y_Array = Array()
-		for (y <- 0 to (col_size - 1)) {
-			val l = fac()
-			y_Array = y_Array :+ l
-		}
-		label_Matrix = label_Matrix ++ y_Array
-	}
-
-	
-}
-*/
-/*
-trait Grid_Panel_Attributes_1 {
-	val Marge = 15
-
-	def Apply_Attributes_1(): Unit ={
-
-	}
-}
-*/
-
-/*object Label_Test_1 {
-	def apply() = new Label_Test_1()
-}*/
-
-//##########
-//LES CLASSES DE LABEL DOIVENT ÊTRE DES CASE CLASS
-//	elles ont ainsi la méthode apply() = new <NOM_CLASSE> 
-//	qui est utilisée par la classe GRID
-//
-//##########
-
-/*case class Label_Test_1 extends Label with Label_States{
-
-	preferredSize = new Dimension(45,50)
-
-	change_To_State(this,1)
-	text = "TEST"
-}*/
-
-/*case class Label_Test_2 extends Label with Label_States{
-	preferredSize = new Dimension(65,40)
-
-	change_To_State(this,0)
-		text = "TEST"
-}*/
 trait Game_Data {
 	var square_size_x = 50
 	var square_size_y = 50
@@ -187,22 +128,14 @@ object Game extends Game_Data{
 	/*def neighbour(n : Int) : List[Int] = {
 		
 	}*/
-
-	/*def game_starter(frame: Frame,nb_of_rows: Int, nb_of_cols: Int, nb_of_bombs: Int) = {
-		val grid = new Grid(nb_of_rows,nb_of_cols)
-		frame.contents = grid
-
-		//val str = grid.contents(3).asInstanceOf[String]
-		//str.asInstanceOf[Label].background = new Color(22,9,255)
-		//println("de")
-	}*/
-
 		/*"AM" -> "Action Maker"*/  //Pour pouvoir l'utiliser comme une action dans des menus alors que gamestarter prend des arguments
 	class AM_Game_Starter(frame: Frame,nb_of_rows: Int, nb_of_cols: Int, nb_of_bombs: Int) {
 		def action () = {
 			var game_beginning_time = new Date()
 
-			val grid = new Grid(nb_of_rows,nb_of_cols)
+			
+			//val grid = new Grid(nb_of_rows,nb_of_cols)
+			val grid = new Grid[Demineur_Label](nb_of_rows,nb_of_cols,unit => new Demineur_Label)
 			frame.contents = grid
 
 			val timer_label = new Timer_Label(game_beginning_time)
@@ -268,7 +201,7 @@ class Timer_Label (time_origin_arg : Date) extends Label{
 		}
 	}
 
-	val timer = new javax.swing.Timer(1, timer_listener)
+	val timer = new javax.swing.Timer(1000, timer_listener)
 
 	timer.start()
 }
