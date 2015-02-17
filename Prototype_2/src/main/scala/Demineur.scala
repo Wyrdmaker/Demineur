@@ -69,6 +69,7 @@ class Grid_Label extends Label with Colors with Label_Borders with Label_States{
 
 class Demineur_Label extends Grid_Label {
 	var discovered = false
+	var value = "?"
 	font = new Font("Arial", 1, 32) // 0 pour normal, 1 pour gras, 2 pour italique ...
 	init()
 
@@ -91,7 +92,31 @@ class Demineur_Label extends Grid_Label {
 			//else if (e.peer.getButton == java.awt.event.MouseEvent.BUTTON3)
 				//switch()
 	}
+/*
+	def discover() : Unit = {
+		if (!discovered) {
+			background = LabelColorActif
+			border = LabelBordure
+                	discovered = true
+			t.add()
+			if (value == "?")
+				t.init(n)
+			text = value
+			value match {
+				case "b" =>
+					background = LabelColorDetected
+					foreground = ColorBomb
+					t.lose()
+				case "0" =>
+					foreground = ColorNum(text.toInt)
+					t.spread(n)
+				case _   =>
+					foreground = ColorNum(text.toInt)
+			}
+		}
+	}
 }
+*/
 
 class Grid[Demineur_Label <: Grid_Label] (row_size: Int, col_size: Int, factory : Unit => Demineur_Label) extends GridPanel(row_size,col_size) {
 	//val Marge = 10
