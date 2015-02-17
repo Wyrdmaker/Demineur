@@ -41,12 +41,15 @@ trait Label_States extends Colors with Label_Borders with Game_Data{
 	}
 }
 
+
+
+
 class Grid_Label extends Label with Colors with Label_Borders with Label_States{
 	var x = 0
 	var y = 0
 	var numero = 0
 	var state = 0
-	font = new Font("Arial", 1, 32) // 0 pour normal, 1 pour gras, 2 pour italique ...
+
 	/*def factory () = {
 		val newlabel = new Grid_Label
 		change_To_State(newlabel,0)
@@ -54,15 +57,39 @@ class Grid_Label extends Label with Colors with Label_Borders with Label_States{
 	}*/
 	change_To_State(this,state)
 
-}
+	font = new Font("Arial", 1, 32) // 0 pour normal, 1 pour gras, 2 pour italique ...
 
+	//def factory()
+}
+/* // Grid_Label était un abstract trait
+class Demineur_Label extends Grid_Label {
+		font = new Font("Arial", 1, 32) // 0 pour normal, 1 pour gras, 2 pour italique ...
+		def factory() = {
+			new Demineur_Label
+		}
+}*/
+
+
+/*Init_Label_Class doit etre un sous-type de la classe Grid_Label*/
 class Grid (row_size: Int, col_size: Int) extends GridPanel(row_size,col_size) {
 	val Marge = 10
+
+	/*
+	def factory() : Init_Label_Class = {
+		//manifest[Init_Label_Class].erasure.newInstance().asInstanceOf[Init_Label_Class]
+		mymanifest.erasure.newInstance().asInstanceOf[Init_Label_Class]
+	}
+	*/
 
 	//Remplir la grille d'objet de la classe Grid_Label
 	for (cx<-1 to row_size) {
 		for (cy<- 1 to col_size) {
+			//val new_label = manifest[Grid_Label].erasure.newInstance().asInstanceOf[Init_Label_Class]
+			//val new_label = factory()
 			contents += {new Grid_Label{x=cx; y=cy; numero=(cy-1)*row_size + (x-1)} }
+			//val new_label = Init_Label_Class.factory()
+			//new_label.x = cx
+			//contents += {new_label}
 		}
 	}
 
