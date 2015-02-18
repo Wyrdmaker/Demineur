@@ -34,7 +34,7 @@ trait Label_Borders extends Colors{
 	val blue_border = Swing.LineBorder(blue,1)
 }
 
-trait Label_States extends Colors with Label_Borders with Game_Data{
+trait Label_States extends Colors with Label_Borders with Demineur_Parameters{
 	//state0=Label Unexplored//state1=Label Marqued//state2=Label Explored//
 	val s_size_x = 			Array(square_size_x,			square_size_x,			square_size_x)
 	val s_size_y = 			Array(square_size_y,			square_size_y,			square_size_y)
@@ -67,7 +67,7 @@ class Grid_Label extends Label with Colors with Label_Borders with Label_States{
 	}
 }
 
-class Demineur_Label extends Grid_Label {
+class Demineur_Label extends Grid_Label{
 	var discovered = false
 	var value = "?"
 	font = new Font("Arial", 1, 32) // 0 pour normal, 1 pour gras, 2 pour italique ...
@@ -92,31 +92,35 @@ class Demineur_Label extends Grid_Label {
 			//else if (e.peer.getButton == java.awt.event.MouseEvent.BUTTON3)
 				//switch()
 	}
-/*
+	
 	def discover() : Unit = {
 		if (!discovered) {
-			background = LabelColorActif
-			border = LabelBordure
-                	discovered = true
-			t.add()
+			//background = LabelColorActif
+			//border = LabelBordure
+            discovered = true
+			Demineur.increment_nb_discovered_square()
 			if (value == "?")
-				t.init(n)
-			text = value
+				Demineur.place_bombs(numero)
+			change_to_state(this,2)
 			value match {
 				case "b" =>
-					background = LabelColorDetected
-					foreground = ColorBomb
-					t.lose()
+					//background = LabelColorDetected
+					//foreground = ColorBomb
+					text = value
+					Demineur.lose()
 				case "0" =>
-					foreground = ColorNum(text.toInt)
-					t.spread(n)
+					//foreground = /*ColorNum(text.toInt)*/ 
+					text = ""
+					Demineur.spread(numero)
 				case _   =>
-					foreground = ColorNum(text.toInt)
+					text = value
+					foreground = Demineur.demineur_color_list(text.toInt)
 			}
 		}
 	}
+	
 }
-*/
+
 
 class Grid[Demineur_Label <: Grid_Label] (row_size: Int, col_size: Int, factory : Unit => Demineur_Label) extends GridPanel(row_size,col_size) {
 	//val Marge = 10
@@ -135,19 +139,79 @@ class Grid[Demineur_Label <: Grid_Label] (row_size: Int, col_size: Int, factory 
 	}
 }
 
-trait Game_Data {
+trait Demineur_Parameters extends Colors{
 	var square_size_x = 50
 	var square_size_y = 50
 	var square_dimension = new Dimension(square_size_x,square_size_y)
+	val demineur_color_list = List (
+			white,
+			blue,
+			green,
+			red,
+			cyan,
+			purple,
+			light_green,
+			light_brown
+		)
 }
 
-object Game extends Game_Data{
+object Demineur extends Demineur_Parameters{
 	val title = "Démineur"
 	var nb_discovered_square = 0
 	var nb_marqued_square = 0
 	var nb_of_bombs = 0
 	var in_game = false
+	var nb_of_rows = 0
+	var nb_of_cols = 0
 
+	def increment_nb_discovered_square() = {
+		nb_discovered_square += 1
+		if (nb_discovered_square + nb_of_bombs == nb_of_rows * nb_of_cols)
+			win()
+	}
+
+	def place_bombs(n_origin_label : Int) = {
+	/*	var b = nbBombs
+		var r = scala.util.Random
+		neighbour(n_origin_label).foreach(n => lstLabel(n_origin_label).v = "#")
+		while (b > 0) {
+			var j = r.nextInt(x * y)
+			if (lstLabel(j).v == "?") {
+				lstLabel(j).v = "b"
+				b -= 1
+			}
+		}
+		lstLabel.foreach(l =>
+			if (l.v != "b") {
+				var v = 0
+				neighbour(l.num).foreach(n => if (lstLabel(n_origin_label).v == "b") v += 1)
+				l.v = v.toString
+			}
+		)
+	*/
+	}
+
+	def win() = {
+		/*inGame = false
+                labelFin.text = "WIN !"
+                labelFin.background = new Color(0,255,0)
+		lstLabel.foreach(x => x.deafTo(x.mouse.moves, x.mouse.clicks))
+		*/
+	}
+
+	def lose() = {
+		/*inGame = false
+		labelFin.text = "GAME OVER !"
+		labelFin.background = new Color(255,0,0)
+		lstLabel.foreach(x => x.deafTo(x.mouse.moves, x.mouse.clicks))
+		*/
+	}
+
+	def spread(n : Int) = {
+		/*var lst = neighbour(n)
+		lst.foreach(n => lstLabel(n).discoverMe())
+		*/
+	}
 
 	//Example of what should be here:
 	/*def neighbour(n : Int) : List[Int] = {
@@ -157,6 +221,8 @@ object Game extends Game_Data{
 	class AM_Game_Starter(frame: Frame,nb_of_rows: Int, nb_of_cols: Int, nb_of_bombs: Int) {
 		def action () = {
 			var game_beginning_time = new Date()
+			Demineur.nb_of_rows = nb_of_rows
+			Demineur.nb_of_cols = nb_of_cols
 
 			
 			//val grid = new Grid(nb_of_rows,nb_of_cols)
@@ -287,7 +353,7 @@ object Action_Manager {
 
 class UI extends MainFrame with Colors{
 	val thisui = this
-	title = Game.title
+	title = Demineur.title
 	//preferredSize = new Dimension(300,300)
 	//resizable = false
 	//val grid = new Grid(3,5)
@@ -303,9 +369,9 @@ class UI extends MainFrame with Colors{
                     //contents += new MenuItem(""){action = Action_Manager.am_game_starter("Grille 16*16, 99 bombes",thisui,16,16,99)}
                     //contents += new MI_Game_Starter(thisui,6,10,5)
 
-                    val am1 = new Game.AM_Game_Starter(thisui,9,9,10)
+                    val am1 = new Demineur.AM_Game_Starter(thisui,9,9,10)
 					contents += new MenuItem(""){action = Action("Grille 9*9, 10 bombes")(am1.action)}
-                    val am2 = new Game.AM_Game_Starter(thisui,5,5,7)
+                    val am2 = new Demineur.AM_Game_Starter(thisui,5,5,7)
                     contents += new MenuItem(""){action = Action("Grille 5*5, 7 bombes")(am2.action)}
 			/*contents += new GrilleMode(t)*/
                 }
