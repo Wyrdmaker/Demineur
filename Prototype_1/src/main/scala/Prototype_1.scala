@@ -31,7 +31,7 @@ trait CaseLabelAttribute {
 }
 
 class CaseLabel (t : UI, n : Int) extends Label with Colors with CaseLabelAttribute {
-	font = new Font("Arial", 1, 32) // 0 pour normal, 1 pour gras, 2 pour italique ...
+	font = new Font("Arial", 1, 32)
 	preferredSize = new Dimension(CaseSize,CaseSize)
 	private var discovered = false
 	var v = "?"
@@ -97,10 +97,65 @@ class CaseLabel (t : UI, n : Int) extends Label with Colors with CaseLabelAttrib
 	}
 }
 
-class GrilleMode(t : UI, x : Int = 0, y : Int = 0, b : Int = 0) extends MenuItem("") with CaseLabelAttribute {
+class NumberField(x : String) extends TextField(x) {
+	listenTo(keys)
+	reactions += {
+		case e : KeyTyped =>
+			if (!e.char.isDigit)
+				e.consume
+	}
+}
+
+class Form(t : String, s : IndexedSeq[Label], d : IndexedSeq[String]) extends Dialog {
+	title = t
+	var accepted = false
+	modal = true
+	var lst = d map (x => new NumberField(x))
+	def f = {
+		accepted = true
+		visible = false
+	}
+	contents = new GridPanel(s.length + 1, 2) {
+		for (i <- 0 until s.length) {
+			contents += s(i)
+			contents += lst(i)
+		}
+		contents += new Label("")
+		contents += new Button("") {
+			action = Action("Jouer")(f)
+		}
+	}
+	visible = true
+}
+
+class GrilleMode(t : UI, m : Int, x : Int = 0, y : Int = 0, b : Int = 0) extends MenuItem("") with CaseLabelAttribute {
+	private var x_grille = x
+	private var y_grille = y
+	private var b_grille = b
+	def restart = {
+		t.lstLabel.foreach(l => l.clear())
+		t.nbDiscovered = 0
+		t.nbDetected = 0
+		t.majBomb(0)
+		t.timeBegin = new Date()
+		t.inGame = true
+		t.labelFin.text = ""
+	}
+	def custom = {
+		var window = new Form(
+			"Grille Perso",
+			IndexedSeq(new Label("x : "), new Label("y : "),  new Label("b : ")),
+			IndexedSeq("6", "7", "10")
+		)
+		x_grille = window.lst(0).text.toInt
+		y_grille = window.lst(1).text.toInt
+		b_grille = window.lst(2).text.toInt
+		if (window.accepted && x_grille > 0 && x_grille < 16 && y_grille > 0 && y_grille < 16 && x_grille * y_grille > 9 && b_grille + 9 <= x_grille * y_grille)
+			creat
+	}
 	def creat = {
-		var grid = new GridPanel(y,x) {
-                	t.lstLabel = 0 until (x * y) map (n => new CaseLabel(t, n){
+		var grid = new GridPanel(y_grille,x_grille) {
+                	t.lstLabel = 0 until (x_grille * y_grille) map (n => new CaseLabel(t, n){
                         	border = Swing.LineBorder(new Color(0,0,0,255),1)
                         })
                         contents ++= t.lstLabel
@@ -109,18 +164,18 @@ class GrilleMode(t : UI, x : Int = 0, y : Int = 0, b : Int = 0) extends MenuItem
                 	contents += t.labelBomb
                 	contents += t.labelFin
 			contents += t.labelChrono
-			t.labelBomb.preferredSize = new Dimension(x * CaseSize / 3, 30)
-			t.labelFin.preferredSize = new Dimension(x * CaseSize / 3, 30)
-			t.labelChrono.preferredSize = new Dimension(x * CaseSize / 3, 30)
+			t.labelBomb.preferredSize = new Dimension(x_grille * CaseSize / 3, 30)
+			t.labelFin.preferredSize = new Dimension(x_grille * CaseSize / 3, 30)
+			t.labelChrono.preferredSize = new Dimension(x_grille * CaseSize / 3, 30)
                 }
 		t.contents = new BorderPanel {
 			layout(grid) = North
 			layout(aff) = South
 		}
-		t.x = x
-	        t.y = y
+		t.x = x_grille
+	        t.y = y_grille
         	t.nbDiscovered = 0
-        	t.nbBombs = b
+        	t.nbBombs = b_grille
 		t.nbDetected = 0
 		t.labelBomb.text = ""
 		t.majBomb(0)
@@ -139,21 +194,14 @@ class GrilleMode(t : UI, x : Int = 0, y : Int = 0, b : Int = 0) extends MenuItem
     		}))
     		timer.start()
 	}
-	action = Action("Grille " + x + "x" + y + " (" + b + ")")(creat)
-	if (b == 0) {
-                action = new Action("Restart") {
-                        def apply {
-                                println(text)
-				t.lstLabel.foreach(l => l.clear())
-				t.nbDiscovered = 0
-				t.nbDetected = 0
-				t.majBomb(0)
-				t.timeBegin = new Date()
-				t.inGame = true
-				t.labelFin.text = ""
-			}
-                }
+	if (m == 0)
+		action = Action("Grille " + x_grille + "x" + y_grille + " (" + b_grille + ")")(creat)
+	else if (m == 1) {
+                action = Action("Restart")(restart)
         }
+	else if (m == 2) {
+		action = Action("Grille Personnalisée")(custom)
+	}
 }
 
 
@@ -177,10 +225,11 @@ class UI extends MainFrame with Colors {
 	}
 	menuBar = new MenuBar {
                 contents += new Menu("Game") {
-                        contents += new GrilleMode(t, 9,9,10)
-			contents += new GrilleMode(t, 16,16,40)
-			contents += new GrilleMode(t,16,16,99)
-			contents += new GrilleMode(t)
+                        contents += new GrilleMode(t,0,9,9,10)
+			contents += new GrilleMode(t,0,16,16,40)
+			contents += new GrilleMode(t,0,16,16,99)
+			contents += new GrilleMode(t,1)
+			contents += new GrilleMode(t,2)
                 }
 		contents += new Menu("About") {
                         contents += new MenuItem(new Action("Prout") {
@@ -205,14 +254,14 @@ class UI extends MainFrame with Colors {
 	}
 	def neighbour(n : Int) : List[Int] = {
 		var lst : List[Int]= List()
-		var a = if (n % y == 0) 0 else -1
-                var b = if (n % y == y - 1) 0 else 1
-                var c = if (n < y) 0 else -1
-                var d = if (n >= (x - 1) * y) 0 else 1
-                for (i <- a to b) {
+		var a = if (n % x == 0) 0 else -1
+                var b = if (n % x == x - 1) 0 else 1
+                var c = if (n < x) 0 else -1
+                var d = if (n >= (y - 1) * x) 0 else 1
+		for (i <- a to b) {
                         for (j <- c to d) {
                                 if (0 <= n + j * x + i && n + j * x + i < x * y) {
-                                        lst ++= List(n + j * x + i) // LOLILOOOL
+                                        lst ++= List(n + j * x + i)
                                 }
                         }
                 }

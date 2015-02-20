@@ -55,17 +55,7 @@ trait Label_States extends Colors with Label_Borders with Demineur_Parameters{
 
 
 
-class Grid_Label extends Label with Colors with Label_Borders with Label_States{
-	var x = 0
-	var y = 0
-	var numero = 0
-	var state = 0
 
-	override def change_to_state (label: Label,no_state : Int): Unit ={
-		state = no_state
-		super.change_to_state(this,no_state)
-	}
-}
 
 class Demineur_Label extends Grid_Label{
 	var discovered = false
@@ -122,26 +112,11 @@ class Demineur_Label extends Grid_Label{
 }
 
 
-class Grid[Demineur_Label <: Grid_Label] (row_size: Int, col_size: Int, factory : Unit => Demineur_Label) extends GridPanel(row_size,col_size) {
-	//val Marge = 10
-	//Remplir la grille d'objet de la classe Grid_Label
-	for (cx<-1 to row_size) {
-		for (cy<- 1 to col_size) {
-			val label = factory()
-			label.x = cx; label.y = cy; label.numero = (cy-1)*row_size +(cx-1);
-			contents += {label}
-		}
-	}
 
-	//Renvoit le label de la case (x,y) (x et y commencent à 0)
-	def access(x: Int, y: Int) ={
-		contents(y*row_size + x)
-	}
-}
 
 trait Demineur_Parameters extends Colors{
-	var square_size_x = 50
-	var square_size_y = 50
+	val square_size_x = 50
+	val square_size_y = 50
 	var square_dimension = new Dimension(square_size_x,square_size_y)
 	val demineur_color_list = List (
 			white,
@@ -155,7 +130,9 @@ trait Demineur_Parameters extends Colors{
 		)
 }
 
-object Demineur extends Demineur_Parameters{
+object Demineur extends Game with Demineur_Parameters{
+	type Game_Label_Class = Demineur_Label
+	def glb_factory () ={new Game_Label_Class } // "glb" -> "Game_Label_Class"
 	val title = "Démineur"
 	var nb_discovered_square = 0
 	var nb_marqued_square = 0
@@ -163,6 +140,9 @@ object Demineur extends Demineur_Parameters{
 	var in_game = false
 	var nb_of_rows = 0
 	var nb_of_cols = 0
+	var game_beginning_time: Date = null
+	var grid:Grid[Game_Label_Class] = null
+	var game_frame_content: Game_Frame_Content = null
 
 	def increment_nb_discovered_square() = {
 		nb_discovered_square += 1
@@ -170,33 +150,79 @@ object Demineur extends Demineur_Parameters{
 			win()
 	}
 
+	/*
+	def test() ={
+		var label = grid.access_xy(2,3)
+		label.value = "coucou"
+		label.text = "coucou"
+		val lbl_list = grid.get_contents
+		lbl_list.foreach( x => {x.value = "Tropique"; x.text=x.value})
+	}
+	*/
+
+	def neighbour(n : Int) : List[Int] = {
+		var lst : List[Int]= List()
+		var a = if (n % nb_of_cols == 0) 0 else -1
+        var b = if (n % nb_of_cols == nb_of_cols - 1) 0 else 1
+        var c = if (n < nb_of_cols) 0 else -1
+        var d = if (n >= (nb_of_rows - 1) * nb_of_cols) 0 else 1
+        for (i <- a to b) {
+            for (j <- c to d) {
+                if (0 <= n + j * nb_of_rows + i && n + j * nb_of_rows + i < nb_of_rows * nb_of_cols) {
+                    lst ++= List(n + j * nb_of_rows + i) // LOLILOOOL
+                }
+            }
+        }
+		return lst	
+	}
+
 	def place_bombs(n_origin_label : Int) = {
-	/*	var b = nbBombs
-		var r = scala.util.Random
-		neighbour(n_origin_label).foreach(n => lstLabel(n_origin_label).v = "#")
-		while (b > 0) {
-			var j = r.nextInt(x * y)
-			if (lstLabel(j).v == "?") {
-				lstLabel(j).v = "b"
-				b -= 1
+		val grid = game_frame_content.grid
+		
+		var bombs_left = nb_of_bombs
+		var random_gen = scala.util.Random
+		//neighbour(n_origin_label).foreach(n => lstLabel(n_origin_label).value = "#")
+		while (bombs_left > 0) {
+			var random = random_gen.nextInt(nb_of_rows * nb_of_cols)
+			if (grid.access_n(random).value == "?") {
+				grid.access_n(random).value = "b"
+				bombs_left -= 1
 			}
 		}
+		val grid_label_list = grid.get_contents
+		grid_label_list.foreach(label => 
+			if (label.value != "b"){
+				var new_value = 0
+				neighbour(label.numero).foreach(numero => 
+					if (grid_label_list(numero).value == "b")
+						{ new_value +=1 }
+				)
+					label.value = new_value.toString
+			}
+		)
+
+	
+		
+		//A supprimer
+		/*
 		lstLabel.foreach(l =>
 			if (l.v != "b") {
 				var v = 0
-				neighbour(l.num).foreach(n => if (lstLabel(n_origin_label).v == "b") v += 1)
+				neighbour(l.num).foreach(n => if (lstLabel(n).v == "b") v += 1)
 				l.v = v.toString
 			}
 		)
-	*/
+		*/
 	}
 
 	def win() = {
-		/*inGame = false
-                labelFin.text = "WIN !"
-                labelFin.background = new Color(0,255,0)
-		lstLabel.foreach(x => x.deafTo(x.mouse.moves, x.mouse.clicks))
-		*/
+		val end_label = game_frame_content.end_label
+		val grid_content = game_frame_content.grid.get_contents
+		in_game = false
+                end_label.text = "WIN !"
+                end_label.background = new Color(0,255,0)
+		grid_content.foreach(label => label.deafTo(label.mouse.moves, label.mouse.clicks))
+		
 	}
 
 	def lose() = {
@@ -220,34 +246,58 @@ object Demineur extends Demineur_Parameters{
 		/*"AM" -> "Action Maker"*/  //Pour pouvoir l'utiliser comme une action dans des menus alors que gamestarter prend des arguments
 	class AM_Game_Starter(frame: Frame,nb_of_rows: Int, nb_of_cols: Int, nb_of_bombs: Int) {
 		def action () = {
-			var game_beginning_time = new Date()
+			
+			Demineur.game_beginning_time = new Date()
 			Demineur.nb_of_rows = nb_of_rows
 			Demineur.nb_of_cols = nb_of_cols
+			Demineur.nb_of_bombs = nb_of_bombs
 
-			
-			//val grid = new Grid(nb_of_rows,nb_of_cols)
-			val grid = new Grid[Demineur_Label](nb_of_rows,nb_of_cols,unit => new Demineur_Label)
-			frame.contents = grid
+			var game_frame_content = new Game_Frame_Content(Demineur)
+			Demineur.game_frame_content = game_frame_content
 
-			val timer_label = new Timer_Label(game_beginning_time)
-			timer_label.preferredSize = new Dimension(100,50)
+			frame.contents = game_frame_content.final_content
 
-			val flow_panel = new FlowPanel() {
-				//Labels
-				contents += timer_label
-
-			}
-
-			val border_panel = new BorderPanel {
-				layout(grid) = North
-				layout(flow_panel) = South
-			}
-
-			frame.contents = border_panel
+			//Test
+			/*
+			Demineur.test()
+			*/
 		}
 	}
 
 }
+
+
+
+class Game_Frame_Content (game: Game) {
+
+	val grid = new Grid[Demineur_Label](game.nb_of_rows,game.nb_of_cols,unit => new Demineur_Label )
+
+	val end_label = new Label()
+	end_label.preferredSize = new Dimension(game.nb_of_rows * game.square_size_x / 3,30)
+
+	val bomb_nb_label = new Label()
+	bomb_nb_label.preferredSize = new Dimension(game.nb_of_rows * game.square_size_x / 3,30)
+
+	val timer_label = new Timer_Label(game.game_beginning_time)
+	timer_label.preferredSize = new Dimension(game.nb_of_rows * game.square_size_x / 3,30)
+
+	val bottom_panel = new FlowPanel() {
+		//Labels
+		contents += bomb_nb_label
+		contents += end_label
+		contents += timer_label
+
+	}
+
+	val border_panel = new BorderPanel {
+		layout(grid) = North
+		layout(bottom_panel) = South
+	}
+
+	val final_content = border_panel
+
+}
+
 
 //Idée: écrire un truc pour qu'on puisse dire à une action de s'éxécuter dans n secondes (lance un timer avec timeout puis execute l'action)
 
