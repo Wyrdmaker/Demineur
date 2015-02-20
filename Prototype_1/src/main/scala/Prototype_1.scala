@@ -108,9 +108,11 @@ class NumberField(x : String) extends TextField(x) {
 
 class Form(t : String, s : IndexedSeq[Label], d : IndexedSeq[String]) extends Dialog {
 	title = t
+	var accepted = false
 	modal = true
 	var lst = d map (x => new NumberField(x))
 	def f = {
+		accepted = true
 		visible = false
 	}
 	contents = new GridPanel(s.length + 1, 2) {
@@ -148,7 +150,8 @@ class GrilleMode(t : UI, m : Int, x : Int = 0, y : Int = 0, b : Int = 0) extends
 		x_grille = window.lst(0).text.toInt
 		y_grille = window.lst(1).text.toInt
 		b_grille = window.lst(2).text.toInt
-		creat
+		if (window.accepted && x_grille > 0 && x_grille < 16 && y_grille > 0 && y_grille < 16 && x_grille * y_grille > 9 && b_grille + 9 <= x_grille * y_grille)
+			creat
 	}
 	def creat = {
 		var grid = new GridPanel(y_grille,x_grille) {
