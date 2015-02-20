@@ -88,7 +88,7 @@ class Demineur_Label extends Grid_Label{
           		border = black_border
 		case e : MouseClicked =>
 			//if (e.peer.getButton == java.awt.event.MouseEvent.BUTTON1 && !flag())
-				//discoverMe()
+				discover()
 			//else if (e.peer.getButton == java.awt.event.MouseEvent.BUTTON3)
 				//switch()
 	}
