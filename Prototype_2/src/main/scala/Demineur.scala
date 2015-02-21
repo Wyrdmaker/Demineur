@@ -11,8 +11,8 @@ import java.awt.event.{ActionEvent, ActionListener}
 
 trait Colors {
 	val label_color_unexplored = new Color(255,100,0)
-	val label_color_marqued = new Color(255,200,100)
-	val label_color_explored = new Color(255,50,50)
+	val label_color_explored = new Color(255,200,100)
+	val label_color_marqued = new Color(255,50,50)
 
 	val black = new Color(0,0,0,255)
 	val black_dim = new Color(0,0,0,100)
@@ -66,6 +66,8 @@ class Demineur_Label extends Grid_Label{
 
 	def init() : Unit = {
 		change_to_state(this,0)
+		discovered = false
+		flag = false
 		text = ""
 		listenTo(mouse.moves, mouse.clicks)
 	}
@@ -80,10 +82,23 @@ class Demineur_Label extends Grid_Label{
 		case e : MouseClicked =>
 			if (e.peer.getButton == java.awt.event.MouseEvent.BUTTON1 && !flag)
 				discover()
-			//else if (e.peer.getButton == java.awt.event.MouseEvent.BUTTON3)
-				//switch()
+			else if (e.peer.getButton == java.awt.event.MouseEvent.BUTTON3)
+				flag_unflag()
 	}
 	
+	def flag_unflag() : Unit = {
+		if (flag) {
+			change_to_state(this,0)
+			Demineur.maj_nb_flag(-1)
+			flag = false
+		}
+		else {
+			change_to_state(this,1)
+			Demineur.maj_nb_flag(1)
+			flag = true
+		}
+	}
+
 	def discover() : Unit = {
 		if (!discovered) {
 			deafTo(mouse.moves, mouse.clicks)
@@ -93,7 +108,7 @@ class Demineur_Label extends Grid_Label{
 			Demineur.increment_nb_discovered_square()
 			if (value == "?")
 				Demineur.place_bombs(numero)
-			change_to_state(this,1)
+			change_to_state(this,2)
 			value match {
 				case "b" =>
 					//background = LabelColorDetected
@@ -137,7 +152,7 @@ object Demineur extends Game with Demineur_Parameters{
 	def glb_factory () ={new Game_Label_Class } // "glb" -> "Game_Label_Class"
 	val title = "Démineur"
 	var nb_discovered_square = 0
-	var nb_marqued_square = 0
+	var nb_flagged_square = 0
 	var nb_of_bombs = 0
 	var in_game = false
 	var nb_of_rows = 0
@@ -179,6 +194,22 @@ object Demineur extends Game with Demineur_Parameters{
         //TEST
         //println(lst)
 		return lst	
+	}
+
+	def maj_nb_flag(n : Int /*normalement 1 ou -1*/) = {
+		n match {
+			case 1 => nb_flagged_square = nb_flagged_square + n 
+			case -1 => nb_flagged_square = nb_flagged_square + n
+			case 0 => nb_flagged_square = nb_flagged_square + n
+			case _ => println("pas normal: la fonction maj_nb_flag de l'objet Demineur a été appelée avec un argument différent de 1 ou -1:" + n)
+
+		}
+		val flag_nb_label = game_frame_content.flag_nb_label
+		flag_nb_label.text = "B : " + nb_flagged_square.toString + " / " + nb_of_bombs.toString
+		if (nb_flagged_square > nb_of_bombs)
+			flag_nb_label.foreground = label_color_marqued
+		else
+			flag_nb_label.foreground = new Color(0,0,0)
 	}
 
 	def place_bombs(n_origin_label : Int) = {
@@ -233,8 +264,7 @@ object Demineur extends Game with Demineur_Parameters{
 		in_game = false
         end_label.text = "WIN !"
         end_label.background = new Color(0,255,0)
-        //A Remettre
-		//grid_content.foreach(label => label.deafTo(label.mouse.moves, label.mouse.clicks))
+		grid_content.foreach(label => label.deafTo(label.mouse.moves, label.mouse.clicks))
 		
 	}
 
@@ -246,8 +276,7 @@ object Demineur extends Game with Demineur_Parameters{
 		in_game = false
 		end_label.text = "GAME OVER !"
 		end_label.background = new Color(255,0,0)
-		//A Remettre
-		//grid_content.foreach(label => label.deafTo(label.mouse.moves, label.mouse.clicks))
+		grid_content.foreach(label => label.deafTo(label.mouse.moves, label.mouse.clicks))
 	}
 
 	def spread(numero : Int) = {
@@ -265,6 +294,8 @@ object Demineur extends Game with Demineur_Parameters{
 	class AM_Game_Starter(frame: Frame,nb_of_rows: Int, nb_of_cols: Int, nb_of_bombs: Int) {
 		def action () = {
 			
+			Demineur.action_restart //Pour le cas où l'utilisateur lance d'autres parties que la première -> remet à 0 flag_nb_label et end_label (en particulier)
+
 			Demineur.game_beginning_time = new Date()
 			Demineur.nb_of_rows = nb_of_rows
 			Demineur.nb_of_cols = nb_of_cols
@@ -272,6 +303,7 @@ object Demineur extends Game with Demineur_Parameters{
 
 			var game_frame_content = new Game_Frame_Content(Demineur)
 			Demineur.game_frame_content = game_frame_content
+			Demineur.maj_nb_flag(0)
 
 			frame.contents = game_frame_content.final_content
 
@@ -289,6 +321,25 @@ object Demineur extends Game with Demineur_Parameters{
 		}
 	}
 
+	def action_restart() : Unit = {
+		if (Demineur.game_frame_content != null) {
+			val grid_contents = Demineur.game_frame_content.grid.get_contents
+			grid_contents.foreach(label => label.init())
+
+			val end_label = Demineur.game_frame_content.end_label
+			end_label.text = ""
+
+			Demineur.nb_discovered_square = 0
+			Demineur.nb_flagged_square = 0
+			Demineur.maj_nb_flag(0)
+			Demineur.game_beginning_time = new Date()
+			Demineur.in_game = true
+
+			val timer_label = Demineur.game_frame_content.timer_label
+			timer_label.restart(Demineur.game_beginning_time)
+		}
+	}
+
 }
 
 
@@ -300,15 +351,15 @@ class Game_Frame_Content (game: Game) {
 	val end_label = new Label()
 	end_label.preferredSize = new Dimension(game.nb_of_rows * game.square_size_x / 3,30)
 
-	val bomb_nb_label = new Label()
-	bomb_nb_label.preferredSize = new Dimension(game.nb_of_rows * game.square_size_x / 3,30)
+	val flag_nb_label = new Label()
+	flag_nb_label.preferredSize = new Dimension(game.nb_of_rows * game.square_size_x / 3,30)
 
 	val timer_label = new Timer_Label(game.game_beginning_time)
 	timer_label.preferredSize = new Dimension(game.nb_of_rows * game.square_size_x / 3,30)
 
 	val bottom_panel = new FlowPanel() {
 		//Labels
-		contents += bomb_nb_label
+		contents += flag_nb_label
 		contents += end_label
 		contents += timer_label
 
@@ -450,6 +501,7 @@ class UI extends MainFrame with Colors{
                     contents += new MenuItem(""){action = Action("Grille 5*5, 7 bombes")(am2.action)}
                     val am3 = new Demineur.AM_Game_Starter(thisui,5,5,1)
                     contents += new MenuItem(""){action = Action("Grille 5*5, 1 bombes")(am3.action)}
+                    contents += new MenuItem(""){action = Action("Restart")(Demineur.action_restart)}
 			/*contents += new GrilleMode(t)*/
                 }
                 contents += new Menu("About") {
