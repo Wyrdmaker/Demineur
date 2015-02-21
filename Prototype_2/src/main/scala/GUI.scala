@@ -34,10 +34,10 @@ class Grid[Game_Label_Class <: Grid_Label] (nb_of_cols: Int, nb_of_rows: Int, fa
 
 
 	//Remplir la grille d'objet de la classe Grid_Label
-	for (cx<-1 to nb_of_cols) {
-		for (cy<- 1 to nb_of_rows) {
+	for (cy<-1 to nb_of_rows) {
+		for (cx<- 1 to nb_of_cols) {
 			val label = factory()
-			label.x = cx; label.y = cy; label.numero = (cy-1)*nb_of_cols +(cx-1);
+			label.x = cx-1; label.y = cy-1; label.numero = (cy-1)*nb_of_cols +(cx-1);
 			contents += {label}
 		}
 	}

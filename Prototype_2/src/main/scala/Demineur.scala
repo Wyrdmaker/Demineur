@@ -173,9 +173,11 @@ object Demineur extends Game with Demineur_Parameters{
                 if (0 <= n + j * nb_of_cols + i && n + j * nb_of_cols + i < nb_of_rows * nb_of_cols) {
                     lst ++= List(n + j * nb_of_cols + i) // LOLILOOOL
                 }
+                //lst ++= List(n + j * nb_of_cols + i)
             }
         }
-        println(lst)
+        //TEST
+        //println(lst)
 		return lst	
 	}
 
@@ -193,15 +195,33 @@ object Demineur extends Game with Demineur_Parameters{
 			}
 		}
 		val grid_label_list = grid.get_contents
+		
 		grid_label_list.foreach(label => 
 			if (label.value != "b"){
 				var new_value = 0
 				neighbour(label.numero).foreach(number => 
-					if (grid_label_list(number).value == "b") new_value += 1
+					if (grid.access_n(number).value == "b") new_value += 1
 				)
 				label.value = new_value.toString
 			}
 		)
+
+		//TEST
+		/*
+		var nb_list : List[Int]=List()
+		for(n <- 0 to nb_of_cols*nb_of_rows-1) {
+			nb_list ++= List(n)
+		}
+		nb_list.foreach(n => 
+			if (grid.access_n(n).value != "b"){
+				var new_value = 0
+				neighbour(n).foreach(number => 
+					if (grid.access_n(number).value == "b") new_value += 1
+				)
+				grid.access_n(n).value = new_value.toString
+			}
+		)
+		*/
 
 	}
 
@@ -234,6 +254,7 @@ object Demineur extends Game with Demineur_Parameters{
 		val grid_content = game_frame_content.grid.get_contents
 		var voisins_list = neighbour(numero)
 		voisins_list.foreach(numero => grid_content(numero).discover())
+		
 	}
 
 	//Example of what should be here:
@@ -258,8 +279,8 @@ object Demineur extends Game with Demineur_Parameters{
 			//val lael = Demineur.grid.access_n(3)
 			//lael.background = new Color(0,0,255)
 			//val c = Demineur.game_frame_content.grid.get_contents
-			//val lael = c(3)
-			//lael.background = new Color(0,0,255)
+			//c(6).background = new Color(0,0,255)
+			//c(11).background = new Color(0,0,200)
 
 			//Test
 			/*
