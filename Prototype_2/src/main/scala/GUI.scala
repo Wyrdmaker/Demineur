@@ -28,23 +28,23 @@ abstract class Game{
 
 
 
-class Grid[Game_Label_Class <: Grid_Label] (row_size: Int, col_size: Int, factory : Unit => Game_Label_Class) extends GridPanel(row_size,col_size) {
+class Grid[Game_Label_Class <: Grid_Label] (nb_of_cols: Int, nb_of_rows: Int, factory : Unit => Game_Label_Class) extends GridPanel(nb_of_cols,nb_of_rows) {
 	//val Marge = 10
 
 
 
 	//Remplir la grille d'objet de la classe Grid_Label
-	for (cx<-1 to row_size) {
-		for (cy<- 1 to col_size) {
+	for (cx<-1 to nb_of_cols) {
+		for (cy<- 1 to nb_of_rows) {
 			val label = factory()
-			label.x = cx; label.y = cy; label.numero = (cy-1)*row_size +(cx-1);
+			label.x = cx; label.y = cy; label.numero = (cy-1)*nb_of_cols +(cx-1);
 			contents += {label}
 		}
 	}
 
 	//Renvoit le label de la case (x,y) (x et y commencent à 0)
 	def access_xy(x: Int, y: Int) ={
-		contents(y*row_size + x).asInstanceOf[Game_Label_Class]
+		contents(y*nb_of_cols + x).asInstanceOf[Game_Label_Class]
 	}
 	def access_n(n: Int) ={
 		contents(n).asInstanceOf[Game_Label_Class]

@@ -59,6 +59,7 @@ trait Label_States extends Colors with Label_Borders with Demineur_Parameters{
 
 class Demineur_Label extends Grid_Label{
 	var discovered = false
+	var flag = false
 	var value = "?"
 	font = new Font("Arial", 1, 32) // 0 pour normal, 1 pour gras, 2 pour italique ...
 	init()
@@ -77,7 +78,7 @@ class Demineur_Label extends Grid_Label{
 			if (!discovered)
           		border = black_border
 		case e : MouseClicked =>
-			//if (e.peer.getButton == java.awt.event.MouseEvent.BUTTON1 && !flag())
+			if (e.peer.getButton == java.awt.event.MouseEvent.BUTTON1 && !flag)
 				discover()
 			//else if (e.peer.getButton == java.awt.event.MouseEvent.BUTTON3)
 				//switch()
@@ -85,13 +86,14 @@ class Demineur_Label extends Grid_Label{
 	
 	def discover() : Unit = {
 		if (!discovered) {
+			deafTo(mouse.moves, mouse.clicks)
 			//background = LabelColorActif
 			//border = LabelBordure
             discovered = true
 			Demineur.increment_nb_discovered_square()
 			if (value == "?")
 				Demineur.place_bombs(numero)
-			change_to_state(this,2)
+			change_to_state(this,1)
 			value match {
 				case "b" =>
 					//background = LabelColorDetected
@@ -162,17 +164,18 @@ object Demineur extends Game with Demineur_Parameters{
 
 	def neighbour(n : Int) : List[Int] = {
 		var lst : List[Int]= List()
-		var a = if (n % nb_of_cols == 0) 0 else -1
-        var b = if (n % nb_of_cols == nb_of_cols - 1) 0 else 1
-        var c = if (n < nb_of_cols) 0 else -1
-        var d = if (n >= (nb_of_rows - 1) * nb_of_cols) 0 else 1
+		var a = if (n % nb_of_cols == 0) 0 else -1 //bord gauche du carré
+        var b = if (n % nb_of_cols == nb_of_cols - 1) 0 else 1 //bord droit du carré
+        var c = if (n < nb_of_cols) 0 else -1 // bord haut du carré
+        var d = if (n >= (nb_of_rows - 1) * nb_of_cols) 0 else 1 // bord bas du carré
         for (i <- a to b) {
             for (j <- c to d) {
-                if (0 <= n + j * nb_of_rows + i && n + j * nb_of_rows + i < nb_of_rows * nb_of_cols) {
-                    lst ++= List(n + j * nb_of_rows + i) // LOLILOOOL
+                if (0 <= n + j * nb_of_cols + i && n + j * nb_of_cols + i < nb_of_rows * nb_of_cols) {
+                    lst ++= List(n + j * nb_of_cols + i) // LOLILOOOL
                 }
             }
         }
+        println(lst)
 		return lst	
 	}
 
@@ -181,7 +184,7 @@ object Demineur extends Game with Demineur_Parameters{
 		
 		var bombs_left = nb_of_bombs
 		var random_gen = scala.util.Random
-		//neighbour(n_origin_label).foreach(n => lstLabel(n_origin_label).value = "#")
+		neighbour(n_origin_label).foreach(n => grid.access_n(n).value = "#")
 		while (bombs_left > 0) {
 			var random = random_gen.nextInt(nb_of_rows * nb_of_cols)
 			if (grid.access_n(random).value == "?") {
@@ -193,50 +196,44 @@ object Demineur extends Game with Demineur_Parameters{
 		grid_label_list.foreach(label => 
 			if (label.value != "b"){
 				var new_value = 0
-				neighbour(label.numero).foreach(numero => 
-					if (grid_label_list(numero).value == "b")
-						{ new_value +=1 }
+				neighbour(label.numero).foreach(number => 
+					if (grid_label_list(number).value == "b") new_value += 1
 				)
-					label.value = new_value.toString
+				label.value = new_value.toString
 			}
 		)
 
-	
-		
-		//A supprimer
-		/*
-		lstLabel.foreach(l =>
-			if (l.v != "b") {
-				var v = 0
-				neighbour(l.num).foreach(n => if (lstLabel(n).v == "b") v += 1)
-				l.v = v.toString
-			}
-		)
-		*/
 	}
 
 	def win() = {
 		val end_label = game_frame_content.end_label
+		val timer_label = game_frame_content.timer_label
 		val grid_content = game_frame_content.grid.get_contents
+		timer_label.stop()
 		in_game = false
-                end_label.text = "WIN !"
-                end_label.background = new Color(0,255,0)
-		grid_content.foreach(label => label.deafTo(label.mouse.moves, label.mouse.clicks))
+        end_label.text = "WIN !"
+        end_label.background = new Color(0,255,0)
+        //A Remettre
+		//grid_content.foreach(label => label.deafTo(label.mouse.moves, label.mouse.clicks))
 		
 	}
 
 	def lose() = {
-		/*inGame = false
-		labelFin.text = "GAME OVER !"
-		labelFin.background = new Color(255,0,0)
-		lstLabel.foreach(x => x.deafTo(x.mouse.moves, x.mouse.clicks))
-		*/
+		val end_label = game_frame_content.end_label
+		val timer_label = game_frame_content.timer_label
+		val grid_content = game_frame_content.grid.get_contents
+		timer_label.stop()
+		in_game = false
+		end_label.text = "GAME OVER !"
+		end_label.background = new Color(255,0,0)
+		//A Remettre
+		//grid_content.foreach(label => label.deafTo(label.mouse.moves, label.mouse.clicks))
 	}
 
-	def spread(n : Int) = {
-		/*var lst = neighbour(n)
-		lst.foreach(n => lstLabel(n).discoverMe())
-		*/
+	def spread(numero : Int) = {
+		val grid_content = game_frame_content.grid.get_contents
+		var voisins_list = neighbour(numero)
+		voisins_list.foreach(numero => grid_content(numero).discover())
 	}
 
 	//Example of what should be here:
@@ -256,6 +253,13 @@ object Demineur extends Game with Demineur_Parameters{
 			Demineur.game_frame_content = game_frame_content
 
 			frame.contents = game_frame_content.final_content
+
+			//Test
+			//val lael = Demineur.grid.access_n(3)
+			//lael.background = new Color(0,0,255)
+			//val c = Demineur.game_frame_content.grid.get_contents
+			//val lael = c(3)
+			//lael.background = new Color(0,0,255)
 
 			//Test
 			/*
@@ -423,6 +427,8 @@ class UI extends MainFrame with Colors{
 					contents += new MenuItem(""){action = Action("Grille 9*9, 10 bombes")(am1.action)}
                     val am2 = new Demineur.AM_Game_Starter(thisui,5,5,7)
                     contents += new MenuItem(""){action = Action("Grille 5*5, 7 bombes")(am2.action)}
+                    val am3 = new Demineur.AM_Game_Starter(thisui,5,5,1)
+                    contents += new MenuItem(""){action = Action("Grille 5*5, 1 bombes")(am3.action)}
 			/*contents += new GrilleMode(t)*/
                 }
                 contents += new Menu("About") {
