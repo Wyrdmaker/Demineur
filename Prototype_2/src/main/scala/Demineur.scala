@@ -191,8 +191,6 @@ object Demineur extends Game with Demineur_Parameters{
                 //lst ++= List(n + j * nb_of_cols + i)
             }
         }
-        //TEST
-        //println(lst)
 		return lst	
 	}
 
@@ -214,8 +212,6 @@ object Demineur extends Game with Demineur_Parameters{
 
 	def place_bombs(n_origin_label : Int) = {
 		val grid = game_frame_content.grid
-		//TEST
-		val grid_content = grid.get_contents
 		
 		var bombs_left = nb_of_bombs
 		var random_gen = scala.util.Random
@@ -225,9 +221,6 @@ object Demineur extends Game with Demineur_Parameters{
 
 			if (grid.access_n(random).value == "?") {
 				grid.access_n(random).value = "b"
-			//TEST_Remplacement
-			//if (grid_content(random).value == "?") {
-			//	grid_content(random).value = "b"
 
 				bombs_left -= 1
 			}
@@ -238,21 +231,10 @@ object Demineur extends Game with Demineur_Parameters{
 		grid_label_list.foreach(label => 
 			if (label.value != "b"){
 				var new_value = 0
-				//TEST
-				//println("n° "+label.numero)
-
-				//TEST
-				//println("voisins" + neighbour(label.numero))
-
 				neighbour(label.numero).foreach(number => 
-
-					if (grid.access_n(number).value == "b") {new_value += 1; /*TEST println("+1:"+number)*/}
-					//TEST_Remplacement
-					//if (grid_content(number).value == "b") new_value += 1
+					if (grid.access_n(number).value == "b") {new_value += 1}
 				)
 				label.value = new_value.toString
-				//TEST
-				//println("new value "+label.value)
 			}
 		)
 		
