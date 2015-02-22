@@ -132,7 +132,7 @@ class Demineur_Label extends Grid_Label{
 
 
 trait Demineur_Parameters extends Colors{
-	val square_size_x = 35
+	val square_size_x = 35 //éventuellement modifiées par Game_Frame_Content s'il y a trop peu de cases pour que end_label, timer_label et flag_nb_label ait la place de s'afficher correctement
 	val square_size_y = 35
 	var square_dimension = new Dimension(square_size_x,square_size_y)
 	val demineur_color_list = List (
@@ -214,29 +214,48 @@ object Demineur extends Game with Demineur_Parameters{
 
 	def place_bombs(n_origin_label : Int) = {
 		val grid = game_frame_content.grid
+		//TEST
+		val grid_content = grid.get_contents
 		
 		var bombs_left = nb_of_bombs
 		var random_gen = scala.util.Random
 		neighbour(n_origin_label).foreach(n => grid.access_n(n).value = "#")
 		while (bombs_left > 0) {
 			var random = random_gen.nextInt(nb_of_rows * nb_of_cols)
+
 			if (grid.access_n(random).value == "?") {
 				grid.access_n(random).value = "b"
+			//TEST_Remplacement
+			//if (grid_content(random).value == "?") {
+			//	grid_content(random).value = "b"
+
 				bombs_left -= 1
 			}
 		}
+		
 		val grid_label_list = grid.get_contents
 		
 		grid_label_list.foreach(label => 
 			if (label.value != "b"){
 				var new_value = 0
+				//TEST
+				//println("n° "+label.numero)
+
+				//TEST
+				//println("voisins" + neighbour(label.numero))
+
 				neighbour(label.numero).foreach(number => 
-					if (grid.access_n(number).value == "b") new_value += 1
+
+					if (grid.access_n(number).value == "b") {new_value += 1; /*TEST println("+1:"+number)*/}
+					//TEST_Remplacement
+					//if (grid_content(number).value == "b") new_value += 1
 				)
 				label.value = new_value.toString
+				//TEST
+				//println("new value "+label.value)
 			}
 		)
-
+		
 		//TEST
 		/*
 		var nb_list : List[Int]=List()
@@ -285,13 +304,29 @@ object Demineur extends Game with Demineur_Parameters{
 		voisins_list.foreach(numero => grid_content(numero).discover())
 		
 	}
+		/*"MIM" -> "Menu Item Maker"*/
+	class MIM_Game_Starter(frame: Frame,nb_of_cols: Int, nb_of_rows: Int,nb_of_bombs: Int) extends MenuItem(""){
+		def game_starter () = {
+			
+			Demineur.action_restart //Pour le cas où l'utilisateur lance d'autres parties que la première -> remet à 0 flag_nb_label et end_label (en particulier)
 
-	//Example of what should be here:
-	/*def neighbour(n : Int) : List[Int] = {
-		
-	}*/
+			Demineur.game_beginning_time = new Date()
+			Demineur.nb_of_rows = nb_of_rows
+			Demineur.nb_of_cols = nb_of_cols
+			Demineur.nb_of_bombs = nb_of_bombs
+
+			var game_frame_content = new Game_Frame_Content(Demineur)
+			Demineur.game_frame_content = game_frame_content
+			Demineur.maj_nb_flag(0)
+
+			frame.contents = game_frame_content.final_content
+		}
+		action = Action("Grille "+nb_of_cols+"*"+nb_of_rows+", "+nb_of_bombs+" bombes")(game_starter)
+	}
+
+	/*
 		/*"AM" -> "Action Maker"*/  //Pour pouvoir l'utiliser comme une action dans des menus alors que gamestarter prend des arguments
-	class AM_Game_Starter(frame: Frame,nb_of_rows: Int, nb_of_cols: Int, nb_of_bombs: Int) {
+	class AM_Game_Starter(frame: Frame,nb_of_cols: Int, nb_of_rows: Int, nb_of_bombs: Int) {
 		def action () = {
 			
 			Demineur.action_restart //Pour le cas où l'utilisateur lance d'autres parties que la première -> remet à 0 flag_nb_label et end_label (en particulier)
@@ -310,8 +345,17 @@ object Demineur extends Game with Demineur_Parameters{
 			//Test
 			//val lael = Demineur.grid.access_n(3)
 			//lael.background = new Color(0,0,255)
+			//val grid = Demineur.game_frame_content.grid
 			//val c = Demineur.game_frame_content.grid.get_contents
-			//c(6).background = new Color(0,0,255)
+			//c(15).background = new Color(0,0,255)
+			//grid.access_n(15).background = new Color(0,100,255)
+			//grid.access_xy(8,2).background = new Color(200,100,200)
+			//c(3).background = new Color(0,0,255)
+			//c(3+9).background = new Color(0,0,255)
+			//c(3+9+9).background = new Color(0,0,255)
+			//grid.access_n(3).background = new Color(0,0,255)
+			//grid.access_n(3 + 9).background = new Color(0,0,255)
+			//grid.access_n(3 + 9 + 9).background = new Color(0,0,255)
 			//c(11).background = new Color(0,0,200)
 
 			//Test
@@ -320,7 +364,7 @@ object Demineur extends Game with Demineur_Parameters{
 			*/
 		}
 	}
-
+	*/
 	def action_restart() : Unit = {
 		if (Demineur.game_frame_content != null) {
 			val grid_contents = Demineur.game_frame_content.grid.get_contents
@@ -346,16 +390,16 @@ object Demineur extends Game with Demineur_Parameters{
 
 class Game_Frame_Content (game: Game) {
 
-	val grid = new Grid[Demineur_Label](game.nb_of_rows,game.nb_of_cols,unit => new Demineur_Label )
-
 	val end_label = new Label()
-	end_label.preferredSize = new Dimension(game.nb_of_rows * game.square_size_x / 3,30)
+	end_label.preferredSize = new Dimension(math.max(game.nb_of_cols * game.square_size_x / 3,3*35),30)
 
 	val flag_nb_label = new Label()
-	flag_nb_label.preferredSize = new Dimension(game.nb_of_rows * game.square_size_x / 3,30)
+	flag_nb_label.preferredSize = new Dimension(math.max(game.nb_of_cols * game.square_size_x / 3,2*35),30)
 
 	val timer_label = new Timer_Label(game.game_beginning_time)
-	timer_label.preferredSize = new Dimension(game.nb_of_rows * game.square_size_x / 3,30)
+	timer_label.preferredSize = new Dimension(math.max(game.nb_of_cols * game.square_size_x / 3,2*35),30)
+
+	val grid = new Grid[Demineur_Label](game.nb_of_cols,game.nb_of_rows,unit => new Demineur_Label )
 
 	val bottom_panel = new FlowPanel() {
 		//Labels
@@ -495,12 +539,20 @@ class UI extends MainFrame with Colors{
                     //contents += new MenuItem(""){action = Action_Manager.am_game_starter("Grille 16*16, 99 bombes",thisui,16,16,99)}
                     //contents += new MI_Game_Starter(thisui,6,10,5)
 
-                    val am1 = new Demineur.AM_Game_Starter(thisui,9,9,10)
-					contents += new MenuItem(""){action = Action("Grille 9*9, 10 bombes")(am1.action)}
-                    val am2 = new Demineur.AM_Game_Starter(thisui,16,16,40)
-                    contents += new MenuItem(""){action = Action("Grille 16*16, 40 bombes")(am2.action)}
-                    val am3 = new Demineur.AM_Game_Starter(thisui,16,16,99)
-                    contents += new MenuItem(""){action = Action("Grille 16*16, 99 bombes")(am3.action)}
+                    //val am1 = new Demineur.AM_Game_Starter(thisui,9,9,10)
+					//contents += new MenuItem(""){action = Action("Grille 9*9, 10 bombes")(am1.action)}
+                    //val am2 = new Demineur.AM_Game_Starter(thisui,16,16,40)
+                    //contents += new MenuItem(""){action = Action("Grille 16*16, 40 bombes")(am2.action)}
+                    //val am3 = new Demineur.AM_Game_Starter(thisui,16,16,99)
+                    //contents += new MenuItem(""){action = Action("Grille 16*16, 99 bombes")(am3.action)}
+                    //val am4 = new Demineur.AM_Game_Starter(thisui,9,5,10)
+                    //contents += new MenuItem(""){action = Action("Grille 9*5, 10 bombes")(am4.action)}
+               		
+                    contents += new Demineur.MIM_Game_Starter(thisui,9,9,10)
+                    contents += new Demineur.MIM_Game_Starter(thisui,16,16,40)
+                    contents += new Demineur.MIM_Game_Starter(thisui,16,16,99)
+                    contents += new Demineur.MIM_Game_Starter(thisui,4,8,10)
+                    contents += new Demineur.MIM_Game_Starter(thisui,8,3,7)
                     contents += new MenuItem(""){action = Action("Restart")(Demineur.action_restart)}
 			/*contents += new GrilleMode(t)*/
                 }

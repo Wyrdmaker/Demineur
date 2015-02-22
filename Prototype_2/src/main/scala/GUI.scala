@@ -27,8 +27,7 @@ abstract class Game{
 
 
 
-
-class Grid[Game_Label_Class <: Grid_Label] (nb_of_cols: Int, nb_of_rows: Int, factory : Unit => Game_Label_Class) extends GridPanel(nb_of_cols,nb_of_rows) {
+class Grid[Game_Label_Class <: Grid_Label] (nb_of_cols: Int, nb_of_rows: Int, factory : Unit => Game_Label_Class) extends GridPanel(nb_of_rows,nb_of_cols) /*GridPanel prend le nb de lignes puis le nb de colonnes*/{
 	//val Marge = 10
 
 
