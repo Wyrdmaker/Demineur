@@ -15,7 +15,7 @@ trait Colors {
 	val label_color_marqued = new Color(255,50,50)
 
 	val black = new Color(0,0,0,255)
-	val black_dim = new Color(0,0,0,100)
+	val black_dim = new Color(0,0,0,50)
 
 	val white = new Color(255,255,255)
 	val blue = new Color(0,0,255)
@@ -132,8 +132,8 @@ class Demineur_Label extends Grid_Label{
 
 
 trait Demineur_Parameters extends Colors{
-	val square_size_x = 50
-	val square_size_y = 50
+	val square_size_x = 35
+	val square_size_y = 35
 	var square_dimension = new Dimension(square_size_x,square_size_y)
 	val demineur_color_list = List (
 			white,
@@ -497,10 +497,10 @@ class UI extends MainFrame with Colors{
 
                     val am1 = new Demineur.AM_Game_Starter(thisui,9,9,10)
 					contents += new MenuItem(""){action = Action("Grille 9*9, 10 bombes")(am1.action)}
-                    val am2 = new Demineur.AM_Game_Starter(thisui,5,5,7)
-                    contents += new MenuItem(""){action = Action("Grille 5*5, 7 bombes")(am2.action)}
-                    val am3 = new Demineur.AM_Game_Starter(thisui,5,5,1)
-                    contents += new MenuItem(""){action = Action("Grille 5*5, 1 bombes")(am3.action)}
+                    val am2 = new Demineur.AM_Game_Starter(thisui,16,16,40)
+                    contents += new MenuItem(""){action = Action("Grille 16*16, 40 bombes")(am2.action)}
+                    val am3 = new Demineur.AM_Game_Starter(thisui,16,16,99)
+                    contents += new MenuItem(""){action = Action("Grille 16*16, 99 bombes")(am3.action)}
                     contents += new MenuItem(""){action = Action("Restart")(Demineur.action_restart)}
 			/*contents += new GrilleMode(t)*/
                 }
