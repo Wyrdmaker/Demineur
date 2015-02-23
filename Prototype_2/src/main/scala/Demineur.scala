@@ -324,22 +324,33 @@ object Demineur extends Game with Demineur_Parameters{
 	}
 //idée: créer une fonction qui renverrait un tableau contenant les résultats du formulaire
 
-	def unitunit_customgrid_game_starter = {
+	def custom_grid_game_starter (frame : Frame) = {
 
-		/*
-		var window = new Number_Form(
+		
+		var custom_grid_form = new Number_Form(
 			"Grille Perso",
-			IndexedSeq(new Label("x"), new Label("y"),  new Label("b")),
-			IndexedSeq("6", "7", "10")
+			IndexedSeq("x", "y",  "b"),
+			IndexedSeq((3,20), (3,20), (10,10))
 		)
-		x_grille = window.lst(0).text.toInt
-		y_grille = window.lst(1).text.toInt
-		b_grille = window.lst(2).text.toInt
-		if (window.accepted && x_grille > 0 && x_grille < 16 && y_grille > 0 && y_grille < 16 && x_grille * y_grille > 9 && b_grille + 9 <= x_grille * y_grille)
-			creat
-			*/
+		val form_result = custom_grid_form.result
+		val asked_nb_of_cols = form_result(0)
+		val asked_nb_of_rows = form_result(1)
+		val asked_nb_of_bombs = form_result(2)
+		if (custom_grid_form.accepted && asked_nb_of_cols * asked_nb_of_rows > 9 && asked_nb_of_bombs + 9 <= asked_nb_of_cols * asked_nb_of_rows) {
+			game_starter(frame,asked_nb_of_cols,asked_nb_of_rows,asked_nb_of_bombs)
+		}
+		else {
+			println("Les réponses au formulaire ne permettent pas de créer une grille convenable")
+		}
 	}
 	
+	class MIM_custom_grid_game_starter(frame: Frame) extends MenuItem(""){
+		def unitunit_custom_grid_game_starter() :Unit ={
+			Demineur.custom_grid_game_starter(frame)
+		}
+		action = Action("Grille personalisée")(unitunit_custom_grid_game_starter)
+	}
+
 	/*
 		/*"AM" -> "Action Maker"*/  //Pour pouvoir l'utiliser comme une action dans des menus alors que gamestarter prend des arguments
 	class AM_Game_Starter(frame: Frame,nb_of_cols: Int, nb_of_rows: Int, nb_of_bombs: Int) {
@@ -570,6 +581,7 @@ class UI extends MainFrame with Colors{
                     contents += new Demineur.MIM_Game_Starter(thisui,4,8,10)
                     contents += new Demineur.MIM_Game_Starter(thisui,8,3,7)
                     contents += new MenuItem(""){action = Action("Restart")(Demineur.action_restart)}
+                    contents += new Demineur.MIM_custom_grid_game_starter(thisui)
 			/*contents += new GrilleMode(t)*/
                 }
                 contents += new Menu("About") {

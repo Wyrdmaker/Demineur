@@ -74,19 +74,23 @@ class Number_Field(init_string : String) extends TextField(init_string) {
 	}
 }
 
-class Number_Form(titre : String, fields_names_list : IndexedSeq[Label], fields_initial_values_list : IndexedSeq[String]) extends Dialog {
-	if (fields_names_list.length != fields_initial_values_list.length) {
+//les couples d'Int de fields_bounds_list représentent le min et le max que l'utilisateur peut rentrer dans le formulaire ((n,n) avec n un entier signifie pas de limite)
+class Number_Form(titre : String, fields_names_list : IndexedSeq[String], fields_bounds_list : IndexedSeq[(Int,Int)]) extends Dialog {
+	var result: IndexedSeq[Int] = fields_bounds_list map (couple => couple._1)
+	var accepted : Boolean = false
+	if (fields_names_list.length == fields_bounds_list.length) {
 		title = titre
-		var accepted = false
+		//accepted = false
 		modal = true
-		var number_fields_list = fields_initial_values_list map (i_value => new Number_Field(i_value))
-		def submit = {
-			accepted = true
-			visible = false
-		}
+		var number_fields_list = fields_bounds_list map (couple =>
+			couple match {
+				case (min_value,max_value) => new Number_Field(((max_value + min_value)/2).toString)
+			})
 		contents = new GridPanel(fields_names_list.length + 1, 2) {
 			for (i <- 0 until fields_names_list.length) {
-				contents += fields_names_list(i) + " : "
+				var bounds_string = "  (" + fields_bounds_list(i)._1 + "/" + fields_bounds_list(i)._2 + ")"
+				if (fields_bounds_list(i)._1 == fields_bounds_list(i)._2) { bounds_string = ""}
+				contents += new Label(fields_names_list(i) + bounds_string + " : ")
 				contents += number_fields_list(i)
 			}
 			contents += new Label("")
@@ -94,9 +98,36 @@ class Number_Form(titre : String, fields_names_list : IndexedSeq[Label], fields_
 				action = Action("Jouer")(submit)
 			}
 		}
+
+		def submit = {
+			
+			result = number_fields_list map (number_field => number_field.text.toInt)
+			var bound_condition = true
+			for (i <- 0 to result.length - 1 ) {
+				if (!((fields_bounds_list(i)._1 <= result(i) && result(i) <= fields_bounds_list(i)._2)
+					|| fields_bounds_list(i)._1 == fields_bounds_list(i)._2)) {
+					bound_condition = false
+					number_fields_list(i).text = ((fields_bounds_list(i)._1 + fields_bounds_list(i)._2)/2).toString
+				}
+			}
+
+			if (bound_condition) {
+				accepted = true
+				visible = false
+			}
+			else {
+				println("Les réponses aux formulaires ne sont pas dans les bornes définies")
+			
+			}
+			
+
+		}
+
 		visible = true
 	}
 	else {
 		println("Anormal: La classe Number_Form a été instanciée avec deux listes de tailles différentes")
+		println(fields_names_list.length)
+		println(fields_bounds_list.length)
 	}
 }
