@@ -286,10 +286,26 @@ object Demineur extends Game with Demineur_Parameters{
 		voisins_list.foreach(numero => grid_content(numero).discover())
 		
 	}
+
+	def game_starter(frame: Frame,nb_of_cols: Int, nb_of_rows: Int,nb_of_bombs: Int) = {		
+			Demineur.action_restart //Pour le cas où l'utilisateur lance d'autres parties que la première -> remet à 0 flag_nb_label et end_label (en particulier)
+
+			Demineur.game_beginning_time = new Date()
+			Demineur.nb_of_rows = nb_of_rows
+			Demineur.nb_of_cols = nb_of_cols
+			Demineur.nb_of_bombs = nb_of_bombs
+
+			var game_frame_content = new Game_Frame_Content(Demineur)
+			Demineur.game_frame_content = game_frame_content
+			Demineur.maj_nb_flag(0)
+
+			frame.contents = game_frame_content.final_content		
+	}
 		/*"MIM" -> "Menu Item Maker"*/
 	class MIM_Game_Starter(frame: Frame,nb_of_cols: Int, nb_of_rows: Int,nb_of_bombs: Int) extends MenuItem(""){
-		def game_starter () = {
-			
+		def unitunit_game_starter () : Unit= {
+			Demineur.game_starter(frame: Frame,nb_of_cols: Int, nb_of_rows: Int,nb_of_bombs: Int)
+			/*
 			Demineur.action_restart //Pour le cas où l'utilisateur lance d'autres parties que la première -> remet à 0 flag_nb_label et end_label (en particulier)
 
 			Demineur.game_beginning_time = new Date()
@@ -302,10 +318,28 @@ object Demineur extends Game with Demineur_Parameters{
 			Demineur.maj_nb_flag(0)
 
 			frame.contents = game_frame_content.final_content
+			*/
 		}
-		action = Action("Grille "+nb_of_cols+"*"+nb_of_rows+", "+nb_of_bombs+" bombes")(game_starter)
+		action = Action("Grille "+nb_of_cols+"*"+nb_of_rows+", "+nb_of_bombs+" bombes")(unitunit_game_starter)
 	}
+//idée: créer une fonction qui renverrait un tableau contenant les résultats du formulaire
 
+	def unitunit_customgrid_game_starter = {
+
+		/*
+		var window = new Number_Form(
+			"Grille Perso",
+			IndexedSeq(new Label("x"), new Label("y"),  new Label("b")),
+			IndexedSeq("6", "7", "10")
+		)
+		x_grille = window.lst(0).text.toInt
+		y_grille = window.lst(1).text.toInt
+		b_grille = window.lst(2).text.toInt
+		if (window.accepted && x_grille > 0 && x_grille < 16 && y_grille > 0 && y_grille < 16 && x_grille * y_grille > 9 && b_grille + 9 <= x_grille * y_grille)
+			creat
+			*/
+	}
+	
 	/*
 		/*"AM" -> "Action Maker"*/  //Pour pouvoir l'utiliser comme une action dans des menus alors que gamestarter prend des arguments
 	class AM_Game_Starter(frame: Frame,nb_of_cols: Int, nb_of_rows: Int, nb_of_bombs: Int) {

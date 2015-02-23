@@ -64,3 +64,39 @@ class Grid_Label extends Label with Colors with Label_Borders with Label_States{
 		super.change_to_state(this,no_state)
 	}
 }
+
+class Number_Field(init_string : String) extends TextField(init_string) {
+	listenTo(keys)
+	reactions += {
+		case e : KeyTyped =>
+			if (!e.char.isDigit)
+				e.consume
+	}
+}
+
+class Number_Form(titre : String, fields_names_list : IndexedSeq[Label], fields_initial_values_list : IndexedSeq[String]) extends Dialog {
+	if (fields_names_list.length != fields_initial_values_list.length) {
+		title = titre
+		var accepted = false
+		modal = true
+		var number_fields_list = fields_initial_values_list map (i_value => new Number_Field(i_value))
+		def submit = {
+			accepted = true
+			visible = false
+		}
+		contents = new GridPanel(fields_names_list.length + 1, 2) {
+			for (i <- 0 until fields_names_list.length) {
+				contents += fields_names_list(i) + " : "
+				contents += number_fields_list(i)
+			}
+			contents += new Label("")
+			contents += new Button("") {
+				action = Action("Jouer")(submit)
+			}
+		}
+		visible = true
+	}
+	else {
+		println("Anormal: La classe Number_Form a été instanciée avec deux listes de tailles différentes")
+	}
+}
