@@ -5,6 +5,7 @@ import java.util.{Date, Locale}
 import java.text.DateFormat
 import java.text.DateFormat._
 import java.text.SimpleDateFormat
+import java.awt.event.{ActionEvent, ActionListener}
 //import javax.swing.{ImageIcon, Icon}
 
 //Une Bonne Idée mais ça demande du boulot
@@ -15,6 +16,31 @@ class GUI(game: Game) {
 
 }
 */
+
+trait Colors {
+
+	val black = new Color(0,0,0,255)
+	val black_dim = new Color(0,0,0,50)
+
+	val white = new Color(255,255,255)
+	val blue = new Color(0,0,255)
+	val green = new Color(0,200,0)
+	val red = new Color(255,0,0)
+	val cyan = new Color(0,255,255)
+	val purple = new Color(150,0,175)
+	val light_green = new Color(50,200,120)
+	val light_brown = new Color(200,120,50)
+	val color9 = new Color(0,200,200)
+}
+
+trait Label_Borders extends Colors{
+	// Le deuxième paramétre de Swing.LineBorder est l'épaisseur
+	val black_border = Swing.LineBorder(black,1)
+	val black_dim_border = Swing.LineBorder(black_dim,1)
+	val blue_border = Swing.LineBorder(blue,1)
+}
+
+
 abstract class Game{
 	type Game_Label_Class <: Grid_Label
 	def glb_factory () : Game_Label_Class
@@ -28,10 +54,6 @@ abstract class Game{
 
 
 class Grid[Game_Label_Class <: Grid_Label] (nb_of_cols: Int, nb_of_rows: Int, factory : Unit => Game_Label_Class) extends GridPanel(nb_of_rows,nb_of_cols) /*GridPanel prend le nb de lignes puis le nb de colonnes*/{
-	//val Marge = 10
-
-
-
 	//Remplir la grille d'objet de la classe Grid_Label
 	for (cy<-1 to nb_of_rows) {
 		for (cx<- 1 to nb_of_cols) {
@@ -45,24 +67,21 @@ class Grid[Game_Label_Class <: Grid_Label] (nb_of_cols: Int, nb_of_rows: Int, fa
 	def access_xy(x: Int, y: Int) ={
 		contents(y*nb_of_cols + x).asInstanceOf[Game_Label_Class]
 	}
+	//Renvoit le label de numéro n
 	def access_n(n: Int) ={
 		contents(n).asInstanceOf[Game_Label_Class]
 	}
+	//Renvoit la liste des labels de la grille
 	def get_contents() = {
 		contents.map((x) => x.asInstanceOf[Game_Label_Class])
 	}
 }
 
-class Grid_Label extends Label with Colors with Label_Borders with Label_States{
+abstract class Grid_Label extends Label{
 	var x = 0
 	var y = 0
 	var numero = 0
-	var state = 0
-
-	override def change_to_state (label: Label,no_state : Int): Unit ={
-		state = no_state
-		super.change_to_state(this,no_state)
-	}
+	var state: String
 }
 
 class Number_Field(init_string : String) extends TextField(init_string) {
@@ -130,4 +149,41 @@ class Number_Form(titre : String, fields_names_list : IndexedSeq[String], fields
 		println(fields_names_list.length)
 		println(fields_bounds_list.length)
 	}
+}
+
+//Idée: écrire un truc pour qu'on puisse dire à une action de s'éxécuter dans n secondes (lance un timer avec timeout puis execute l'action)
+class Timer_Label (time_origin_arg : Date) extends Label{
+	val this_timer_label = this
+	var time_origin = time_origin_arg
+	var minutes = ((new Date).getTime() - time_origin.getTime()) / 60000 % 60
+	var secondes = ((new Date).getTime() - time_origin.getTime()) / 1000 % 60
+
+	def restart (new_time_origin: Date) = {
+		time_origin = new_time_origin
+		timer.start()
+	}
+
+	def start () = {
+		timer.start()
+	}
+
+	def stop () = {
+		timer.stop()
+	}
+	
+	val timer_listener = new ActionListener{
+		def actionPerformed(e: ActionEvent) {
+			minutes  = ((new Date).getTime() - time_origin.getTime()) / 60000 % 60
+			secondes = ((new Date).getTime() - time_origin.getTime()) / 1000 % 60
+			var string = if (minutes < 10) "0" else ""
+			string = string + minutes.toString + ":"
+			string = if (secondes < 10) string + "0" else string
+			string = string + secondes.toString
+			this_timer_label.text = string
+		}
+	}
+
+	val timer = new javax.swing.Timer(1000, timer_listener)
+
+	timer.start()
 }
