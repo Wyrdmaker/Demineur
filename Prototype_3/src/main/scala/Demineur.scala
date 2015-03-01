@@ -174,8 +174,13 @@ class Demineur_About_Frame extends Frame{
 	visible = true
 }
 
-case class Demineur_Difficulty_Mode(nb_of_cols: Int, nb_of_rows: Int, nb_of_bombs: Int, name: String){
-
+case class Demineur_Difficulty_Mode(nb_of_cols: Int, nb_of_rows: Int, nb_of_bombs: Int, adjective: String) extends Difficulty_Mode{
+	def set_game_parameters () = {
+		Demineur.nb_of_cols = nb_of_cols
+		Demineur.nb_of_rows = nb_of_rows
+		Demineur.nb_of_bombs = nb_of_bombs
+	}
+	val mode_name = nb_of_cols.toString + "x" + nb_of_rows.toString + ", " + nb_of_bombs + " mines, " + adjective
 }
 
 object Demineur extends Game with Demineur_Graphical_Elements{
@@ -190,20 +195,47 @@ object Demineur extends Game with Demineur_Graphical_Elements{
 	type Help_Frame = Demineur_Help_Frame
 	def help_frame_factory () ={new Demineur_Help_Frame }
 	def about_frame_factory () ={new Demineur_About_Frame }
+	//var random_gen héritée de Game
 
-	type game_difficulty_mode = Demineur_Difficulty_Mode
+	type Game_Difficulty_Mode = Demineur_Difficulty_Mode
 	val game_difficulty_mode_list = IndexedSeq(
 		Demineur_Difficulty_Mode(9, 9, 10, "Easy"),
 		Demineur_Difficulty_Mode(16, 16, 40, "Medium"),
-		Demineur_Difficulty_Mode(16, 16, 99, "Hard"))
+		Demineur_Difficulty_Mode(16, 16, 99, "Hard")
+	)
 
+	def game_starter () = {
+		Demineur.maj_nb_flag(0)
+	}
+
+	def game_custom_mode () = {		
+		var custom_grid_form = new Number_Form(
+			"Grille Perso",
+			IndexedSeq("x", "y",  "b"),
+			IndexedSeq((4,25), (4,25), (10,10))
+		)
+		val form_result = custom_grid_form.result
+		val asked_nb_of_cols = form_result(0)
+		val asked_nb_of_rows = form_result(1)
+		val asked_nb_of_bombs = form_result(2)
+		if (	custom_grid_form.accepted 
+			&& 	asked_nb_of_cols * asked_nb_of_rows > 9 
+			&& 	asked_nb_of_bombs + 9 <= asked_nb_of_cols * asked_nb_of_rows) {
+			new Demineur_Difficulty_Mode(asked_nb_of_cols, asked_nb_of_rows, asked_nb_of_bombs, "Custom")
+		}
+		else {
+			println("Les réponses au formulaire ne permettent pas de créer une grille convenable")
+			throw new Custom_Mode_Exception("formulaire pour mode custom mal rempli")
+
+		}		
+	}
 
 	var nb_discovered_square = 0
 	var nb_flagged_square = 0
 	var nb_of_bombs = 0
 	var in_game = false
 	var grid:Grid[Game_Label_Class] = null
-	var game_frame_content: Demineur_Frame_Content = null
+	//var game_frame_content définie dans Game et héritée
 /*
 	class Demineur_Difficulty_Mode (game: Game, nb_of_cols: Int, nb_of_rows: Int, nb_of_bombs: Int) extends MenuItem("") {
 		def set_game_parameters (){
@@ -240,6 +272,8 @@ object Demineur extends Game with Demineur_Graphical_Elements{
 	}
 
 	def maj_nb_flag(n : Int /*normalement 1, -1 ou 0*/) = {
+
+
 		n match {
 			case 1 => nb_flagged_square = nb_flagged_square + n 
 			case -1 => nb_flagged_square = nb_flagged_square + n
@@ -247,19 +281,22 @@ object Demineur extends Game with Demineur_Graphical_Elements{
 			case _ => println("anormal: la fonction maj_nb_flag de l'objet Demineur a été appelée avec un argument différent de 1, -1 ou 0:" + n)
 
 		}
-		val flag_nb_label = game_frame_content.flag_nb_label
-		flag_nb_label.text = "B : " + nb_flagged_square.toString + " / " + nb_of_bombs.toString
+
+
+
+		val label_1 = game_frame_content.label_1
+		label_1.text = "B : " + nb_flagged_square.toString + " / " + nb_of_bombs.toString
 		if (nb_flagged_square > nb_of_bombs)
-			flag_nb_label.foreground = label_color_flagged
+			label_1.foreground = label_color_flagged
 		else
-			flag_nb_label.foreground = new Color(0,0,0)
+			label_1.foreground = new Color(0,0,0)
 	}
 
 	def place_bombs(n_origin_label : Int) = {
 		val grid = game_frame_content.grid
 		
 		var bombs_left = nb_of_bombs
-		var random_gen = scala.util.Random
+		//var random_gen = scala.util.Random
 		neighbour(n_origin_label).foreach(n => grid.access_n(n).value = "#")
 		while (bombs_left > 0) {
 			var random = random_gen.nextInt(nb_of_rows * nb_of_cols)
@@ -286,25 +323,25 @@ object Demineur extends Game with Demineur_Graphical_Elements{
 	}
 
 	def win() = {
-		val end_label = game_frame_content.end_label
+		val outcome_label = game_frame_content.outcome_label
 		val timer_label = game_frame_content.timer_label
 		val grid_content = game_frame_content.grid.get_contents
 		timer_label.stop()
 		in_game = false
-        end_label.text = "WIN !"
-        end_label.background = new Color(0,255,0)
+        outcome_label.text = "WIN !"
+        outcome_label.background = new Color(0,255,0)
 		grid_content.foreach(label => label.deafTo(label.mouse.moves, label.mouse.clicks))
 		
 	}
 
 	def lose() = {
-		val end_label = game_frame_content.end_label
+		val outcome_label = game_frame_content.outcome_label
 		val timer_label = game_frame_content.timer_label
 		val grid_content = game_frame_content.grid.get_contents
 		timer_label.stop()
 		in_game = false
-		end_label.text = "GAME OVER !"
-		end_label.background = new Color(255,0,0)
+		outcome_label.text = "GAME OVER !"
+		outcome_label.background = new Color(255,0,0)
 		grid_content.foreach(label => label.deafTo(label.mouse.moves, label.mouse.clicks))
 	}
 
@@ -315,7 +352,7 @@ object Demineur extends Game with Demineur_Graphical_Elements{
 		
 	}
 
-	//MENU FUNCTIONs
+	//MENU FUNCTIONS
 	def regenerate (frame: Frame) {
 		if (Demineur.game_frame_content != null){
 			demineur_starter(frame, Demineur.nb_of_cols, Demineur.nb_of_rows, Demineur.nb_of_bombs)	
@@ -330,7 +367,7 @@ object Demineur extends Game with Demineur_Graphical_Elements{
 		action = Action("Random seed")(action_regenerate)
 	}
 
-	def demineur_starte() = {
+	def demineur_starter() = {
 		Demineur.maj_nb_flag(0)
 	}
 
@@ -343,13 +380,13 @@ object Demineur extends Game with Demineur_Graphical_Elements{
 			Demineur.nb_of_bombs = nb_of_bombs
 
 			val game_frame_content = new Demineur_Frame_Content(Demineur)
-			Demineur.game_frame_content = game_frame_content
+			//Demineur.game_frame_content = game_frame_content
 			Demineur.maj_nb_flag(0)
 
 			Demineur.in_game = true
 			frame.contents = game_frame_content.final_content		
 	}
-
+	
 	class MIM_Demineur_Starter(frame: Frame,nb_of_cols: Int, nb_of_rows: Int,nb_of_bombs: Int) extends MenuItem(""){
 		def action_demineur_starter () : Unit= {
 			Demineur.demineur_starter(frame: Frame,nb_of_cols: Int, nb_of_rows: Int,nb_of_bombs: Int)
@@ -391,17 +428,17 @@ object Demineur extends Game with Demineur_Graphical_Elements{
 			val grid_contents = Demineur.game_frame_content.grid.get_contents
 			grid_contents.foreach(label => label.init())
 
-			val end_label = Demineur.game_frame_content.end_label
-			end_label.text = ""
+			/*val outcome_label = Demineur.game_frame_content.outcome_label
+			outcome_label.text = ""*/
 
 			Demineur.nb_discovered_square = 0
 			Demineur.nb_flagged_square = 0
 			Demineur.maj_nb_flag(0)
-			Demineur.game_beginning_time = new Date()
+			/*Demineur.game_beginning_time = new Date()
 			Demineur.in_game = true
 
 			val timer_label = Demineur.game_frame_content.timer_label
-			timer_label.restart(Demineur.game_beginning_time)
+			timer_label.restart(Demineur.game_beginning_time)*/
 		}
 	}
 

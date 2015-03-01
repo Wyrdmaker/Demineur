@@ -42,6 +42,10 @@ trait Label_Borders extends Colors{
 
 
 
+abstract class Difficulty_Mode {
+	def set_game_parameters () :Unit
+	val mode_name : String
+}
 
 
 
@@ -59,10 +63,12 @@ abstract class Game{
 	def game_starter (): Unit // game_starter ne contient que les choses à faire avant de lancer une partie qui sont spécifiques au jeu, le reste est fait dans generic_game_starter
 	def action_restart (): Unit
 	var in_game: Boolean
-	var game_frame_content : Game_Frame_Content[Game_Label_Class]
+	var game_frame_content : Game_Frame_Content[Game_Label_Class] = null
+	var random_gen = new scala.util.Random()
 
-	type Game_Difficulty_Mode <: Any
-	val game_difficulty_mode_list : IndexedSeq[Game_Difficulty_Mode] 
+	type Game_Difficulty_Mode <: Difficulty_Mode
+	val game_difficulty_mode_list : IndexedSeq[Game_Difficulty_Mode]
+	def game_custom_mode (): Game_Difficulty_Mode
 }
 
 
@@ -228,7 +234,7 @@ class Game_Frame_Content[Game_Label_Class <: Grid_Label] (game: Game/*, label_1_
 	val outcome_label = new Label()
 	//outcome_label.preferredSize = outcome_label_dimension
 
-	val timer_label = new Label()
+	val timer_label = new Timer_Label(game.game_beginning_time)
 	//timer_label.preferredSize = timer_label_dimension
 
 	val grid = new Grid[Game_Label_Class](game)
@@ -238,6 +244,7 @@ class Game_Frame_Content[Game_Label_Class <: Grid_Label] (game: Game/*, label_1_
 		contents += label_2
 		contents += outcome_label
 		contents += timer_label
+		preferredSize = new Dimension(300,30)
 	}
 
 	val border_panel = new BorderPanel {
@@ -270,6 +277,8 @@ abstract class Label_State[Game_Label_Class <: Grid_Label] {
 	}
 } 
 
+case class Custom_Mode_Exception(value: String) extends Throwable{}
+
 class UI (game: Game) extends MainFrame {
 	val thisui = this
 	title = game.title
@@ -277,36 +286,101 @@ class UI (game: Game) extends MainFrame {
 	contents = new Label("Welcome ! ;)"){
 		preferredSize = new Dimension(300,300)
 	}
-	menuBar = new MenuBar {
-		contents += new Menu("Game") {
-			contents += new MenuItem(""){action = Action("New")()}
-			contents += new MenuItem(""){action = Action("Restart")()}
-			contents += new MenuItem(""){action = Action("Random Seed...")()}
-		}
-		/*contents += new Menu("Type") {
+	val Game_Starter = new Generic_Game_Starter(game,thisui)
+	val Action_Restart = new Generic_Action_Restart(game)
 
-		}*/
+	def action_generic_random_seed() {
+		if (game.game_frame_content != null){
+			var random_seed_form = new Number_Form(
+				"Random Seed",
+				IndexedSeq("Random Seed"),
+				IndexedSeq((0,0))
+				)
+			val asked_random_seed = random_seed_form.result(0)
+			game.random_gen = new scala.util.Random(asked_random_seed)
+
+			Game_Starter.generic_game_starter()
+		}	
+	}
+
+	def action_generic_custom_mode()  {
+		try {
+			val custom_difficulty_mode = game.game_custom_mode()
+			custom_difficulty_mode.set_game_parameters()
+			Game_Starter.generic_game_starter()
+		}
+		catch {
+			case e: Custom_Mode_Exception => ();
+		}
+	}
+
+	class Playmenu_MIM(difficulty_mode: Difficulty_Mode) extends MenuItem(""){
+		def menuitem_action () = {
+			difficulty_mode.set_game_parameters()
+			Game_Starter.generic_game_starter()
+		}
+		action = Action(difficulty_mode.mode_name)(menuitem_action)
+	}
+
+	menuBar = new MenuBar {
+		contents += new Menu("Play") {	
+			game.game_difficulty_mode_list.foreach(difficulty_mode =>
+				contents += new Playmenu_MIM(difficulty_mode)
+			)
+			contents += new MenuItem("")
+			contents += new MenuItem(""){action = Action("Custom...")(action_generic_custom_mode())}
+		}
+		contents += new Menu("Game") {
+			//contents += new MenuItem(""){action = Action("New")()}
+			contents += new MenuItem(""){action = Action("Restart")(Action_Restart.action_restart())}
+			contents += new MenuItem(""){action = Action("Random Seed...")(action_generic_random_seed())}
+		}
 		contents += new Menu("Help") {
 			contents += new MenuItem(""){action = Action("About")(game.about_frame_factory())}
 			contents += new MenuItem(""){action = Action("Help on " + game.title)(game.help_frame_factory())}
 		}
 	}
 
+class Generic_Action_Restart (game: Game) {
+	def action_restart() ={
+		if (game.game_frame_content != null) {
+			game.action_restart()
+			val outcome_label = game.game_frame_content.outcome_label
+			outcome_label.text = ""
 
+			game.game_beginning_time = new Date()
+			game.in_game = true
+
+			val timer_label = game.game_frame_content.timer_label
+			timer_label.restart(game.game_beginning_time)
+		}
+	}
 }
 
-class Generic_Game_Starter (game: Game) {
+class Generic_Game_Starter (game: Game, ui: Frame) {
 	def generic_game_starter (): Unit ={
 		game.action_restart()
-		game.game_beginning_time = new Date()
 
-		game.game_starter()
+
+		game.game_beginning_time = new Date()
 
 		val game_frame_content = new Game_Frame_Content[game.Game_Label_Class](game)
 		game.game_frame_content = game_frame_content
+		ui.contents = game_frame_content.final_content
+
+		game_frame_content.timer_label.restart(new Date())
+		game.game_starter()
 		game.in_game = true
-
-
-
 	}
 }
+
+
+
+
+
+}
+
+
+
+
+
