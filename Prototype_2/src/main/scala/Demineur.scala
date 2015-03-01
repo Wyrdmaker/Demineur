@@ -184,13 +184,14 @@ object Demineur extends Game with Demineur_Graphical_Elements{
 	val title = "Démineur"
 	var nb_discovered_square = 0
 	var nb_flagged_square = 0
-	var nb_of_bombs = 0
+	var nb_of_bombs = 10
 	var in_game = false
-	var nb_of_rows = 0
-	var nb_of_cols = 0
+	var nb_of_rows = 9
+	var nb_of_cols = 9
 	var game_beginning_time: Date = null
 	var grid:Grid[Game_Label_Class] = null
 	var demineur_frame_content: Demineur_Frame_Content = null
+	var random_gen = new scala.util.Random()
 
 	//GAME FUNCTIONS
 	def increment_nb_discovered_square() = {
@@ -235,10 +236,10 @@ object Demineur extends Game with Demineur_Graphical_Elements{
 		val grid = demineur_frame_content.grid
 		
 		var bombs_left = nb_of_bombs
-		var random_gen = scala.util.Random
+		//var random_gen = scala.util.Random
 		neighbour(n_origin_label).foreach(n => grid.access_n(n).value = "#")
 		while (bombs_left > 0) {
-			var random = random_gen.nextInt(nb_of_rows * nb_of_cols)
+			var random = Demineur.random_gen.nextInt(nb_of_rows * nb_of_cols)
 
 			if (grid.access_n(random).value == "?") {
 				grid.access_n(random).value = "b"
@@ -258,7 +259,7 @@ object Demineur extends Game with Demineur_Graphical_Elements{
 				label.value = new_value.toString
 			}
 		)
-
+		Demineur.random_gen = scala.util.Random
 	}
 
 	def win() = {
@@ -293,6 +294,13 @@ object Demineur extends Game with Demineur_Graphical_Elements{
 
 	//MENU FUNCTIONS
 	def regenerate (frame: Frame) {
+		var random_seed_form = new Number_Form(
+			"Random Seed",
+			IndexedSeq("Random Seed"),
+			IndexedSeq((0,0))
+			)
+		val asked_random_seed = random_seed_form.result(0)
+		Demineur.random_gen = new scala.util.Random(asked_random_seed)
 		if (Demineur.demineur_frame_content != null){
 			demineur_starter(frame, Demineur.nb_of_cols, Demineur.nb_of_rows, Demineur.nb_of_bombs)	
 		}
