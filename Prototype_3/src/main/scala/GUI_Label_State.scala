@@ -13,8 +13,8 @@ import java.awt.event.{ActionEvent, ActionListener}
 abstract class Label_State[Game_Label_Class <: Grid_Label] {
 	val state_name: String
 
-	//val size_x: Int
-	//val size_y: Int
+	val size_x: Int
+	val size_y: Int
 	val label_border: javax.swing.border.Border
 	val opaque: Boolean
 	val background: Color
@@ -22,7 +22,7 @@ abstract class Label_State[Game_Label_Class <: Grid_Label] {
 	val text: String
 
 	def change_to_state(game_label: Game_Label_Class) = {
-		//game_label.preferredSize = new Dimension(size_x,size_y)
+		game_label.preferredSize = new Dimension(size_x,size_y)
 		game_label.border = label_border
 		game_label.opaque = opaque
 		game_label.background = background

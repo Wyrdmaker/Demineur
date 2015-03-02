@@ -44,7 +44,7 @@ abstract class Game extends Colors{
 	val square_size_y: Int	//taille des cases en ordonnée
 	var nb_of_rows: Int		//nombre de lignes de la grille
 	var nb_of_cols: Int		//nombre de colonnes de la grille
-	var game_beginning_time: DateFormat //date de début de la partie pour le chronomètre
+	var game_beginning_time: Date //date de début de la partie pour le chronomètre
 	var in_game = false
 
 	type Game_Label_Class <: Grid_Label	//Les labels avec lesquels sera remplis la grille (par la classe Grid)

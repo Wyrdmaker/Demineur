@@ -2,8 +2,8 @@ import scala.swing._
 import scala.swing.event._
 
 abstract class Demineur_Label_State extends Label_State[Demineur_Label] with Demineur_Graphical_Elements {
-	//val size_x = Demineur.square_size_x
-	//val size_y = Demineur.square_size_y
+	val size_x = Demineur.square_size_x
+	val size_y = Demineur.square_size_y
 	val opaque = true
 	val foreground = black
 }
