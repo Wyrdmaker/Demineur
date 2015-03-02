@@ -16,6 +16,9 @@ abstract class Grid_Label extends Label{
 }
 
 //Est ce qu'on pourrait se défaire du paramètrage de Grid avec Game_Label_Class en allant chercher le type Game_Label_Class de game ??
+
+//Crée un GridPanel d'une taille correspondant aux paramètres du jeu, puis le remplit avec des labels de la classe passée en argument.
+// Fournit aussi 3 fonctions pour accéder aux labels de la grille ainsi créée
 class Grid[Game_Label_Class <: Grid_Label] (game: Game) extends GridPanel(game.nb_of_rows, game.nb_of_cols) /*GridPanel prend le nb de lignes puis le nb de colonnes*/{
 	val nb_of_cols = game.nb_of_cols
 	val nb_of_rows = game.nb_of_rows

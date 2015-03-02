@@ -2,8 +2,8 @@ import scala.swing._
 import scala.swing.event._
 
 abstract class Demineur_Label_State extends Label_State[Demineur_Label] with Demineur_Graphical_Elements {
-	val size_x = Demineur.square_size_x
-	val size_y = Demineur.square_size_y
+	//val size_x = Demineur.square_size_x
+	//val size_y = Demineur.square_size_y
 	val opaque = true
 	val foreground = black
 }
@@ -60,7 +60,7 @@ trait Demineur_Label_States_Manager {
 }
 
 class Demineur_Label extends Grid_Label with Demineur_Label_States_Manager with Demineur_Graphical_Elements{
-	var state = "unexplored"
+	var state = "unexplored" //valeur nécessaire pour que les Demineurs_Label puissnet etre instanciés par Grid main inutile sinon
 	var discovered = false
 	var flag = false
 	var value = "?"
@@ -90,24 +90,26 @@ class Demineur_Label extends Grid_Label with Demineur_Label_States_Manager with 
 	}
 	
 	def flag_unflag() : Unit = {
-		if (flag) {
-			change_to_state(this,"unexplored")
-			Demineur.maj_nb_flag(-1)
-			flag = false
-		}
-		else {
-			change_to_state(this,"flagged")
-			Demineur.maj_nb_flag(1)
-			flag = true
+		if (!discovered) { //Pas utile car seuls les label non découverts écoutent les clics de souris, mais plus clair
+			if (flag) {
+				change_to_state(this,"unexplored")
+				Demineur.maj_nb_flag(-1)
+				flag = false
+			}
+			else {
+				change_to_state(this,"flagged")
+				Demineur.maj_nb_flag(1)
+				flag = true
+			}
 		}
 	}
 
 	def discover() : Unit = {
-		if (!discovered) {
+		if (!discovered) {	//pas utile car seuls les label non découverts écoutent les clics de souris, mais plus clair
 			deafTo(mouse.moves, mouse.clicks)
             discovered = true
 			Demineur.increment_nb_discovered_square()
-			if (value == "?")
+			if (value == "?") //ie ce label est le premier à etre cliqué dans cette partie
 				Demineur.place_bombs(numero)
 			change_to_state(this,"explored")
 			value match {

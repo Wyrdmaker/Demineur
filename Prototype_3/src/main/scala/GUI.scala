@@ -37,30 +37,32 @@ abstract class Difficulty_Mode {
 	val mode_name : String
 }
 
+//Signature d'un jeu
 abstract class Game extends Colors{
 	val title: String
-	val square_size_x: Int
-	val square_size_y: Int
-	var nb_of_rows: Int
-	var nb_of_cols: Int
-	var game_beginning_time: Date
+	val square_size_x: Int 	//taille des cases en abscisse
+	val square_size_y: Int	//taille des cases en ordonnée
+	var nb_of_rows: Int		//nombre de lignes de la grille
+	var nb_of_cols: Int		//nombre de colonnes de la grille
+	var game_beginning_time: DateFormat //date de début de la partie pour le chronomètre
 	var in_game = false
 
-	type Game_Label_Class <: Grid_Label
-	def glb_factory () : Game_Label_Class
-	def about_frame_factory (): Frame
-	def help_frame_factory (): Frame
+	type Game_Label_Class <: Grid_Label	//Les labels avec lesquels sera remplis la grille (par la classe Grid)
+	def glb_factory () : Game_Label_Class	//Une usine à labels de la classe Game_Label_Class
+	def about_frame_factory (): Frame 		//une fonction qui fournit la fenetre "About" du jeu
+	def help_frame_factory (): Frame 		//une fonction qui fournit la fenetre "Help" du jeu
 
-	var random_gen = new scala.util.Random()
-	var game_frame_content : Game_Frame_Content[Game_Label_Class] = null
+	var random_gen = new scala.util.Random()	//Le générateur aléatoire utilisé par le jeu
+	var game_frame_content : Game_Frame_Content[Game_Label_Class] = null 	//Variable stockant le contenu graphique de la fenetre de jeu lors d'une partie
 
-	type Game_Difficulty_Mode <: Difficulty_Mode
-	val game_difficulty_mode_list : IndexedSeq[Game_Difficulty_Mode]
-	def game_custom_mode (): Game_Difficulty_Mode
+	type Game_Difficulty_Mode <: Difficulty_Mode 		//Voir la classe Difficulty_Mode de ce fichier
+	val game_difficulty_mode_list : IndexedSeq[Game_Difficulty_Mode] 	//Liste des modes de difficulté que le jeu veut proposer
+	def game_custom_mode (): Game_Difficulty_Mode 	//une fonction qui doit ouvrir un formulaire, verifier eventuellemnt des conditions sur les résultats (autres que les vérifications faite par Number_Form) et
+													// renvoyer un objet de la classe Game_Difficulty_Mode construit avec les réponses
 
 
 	def game_starter (): Unit // game_starter ne contient que les choses à faire avant de lancer une partie qui sont spécifiques au jeu, le reste est fait dans generic_game_starter
-	def game_action_restart (): Unit
+	def game_action_restart (): Unit //game_action_restart ne contient que les choses à faire avant de relancer une partie qui sont spécifique au jeu, le reste est fait dans generic_action_restart
 	def win() = {
 		in_game = false
 		val outcome_label = game_frame_content.outcome_label

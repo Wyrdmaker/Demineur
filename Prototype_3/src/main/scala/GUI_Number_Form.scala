@@ -46,7 +46,7 @@ class Number_Form(titre : String, fields_names_list : IndexedSeq[String], fields
 
 		def submit = {
 			var nonempty_condition = true
-			for (i <- 0 to result.length -1) {
+			for (i <- 0 to result.length -1) { // Sert à vérifier que tout les champs du formulaire ont été remplis avant le clic sur le bouton "fini"
 				if (number_fields_list(i).text.length <= 0){
 					nonempty_condition = false
 					number_fields_list(i).text = ((fields_bounds_list(i)._1 + fields_bounds_list(i)._2)/2).toString
@@ -55,7 +55,8 @@ class Number_Form(titre : String, fields_names_list : IndexedSeq[String], fields
 			if (nonempty_condition == true) {
 				result = number_fields_list map (number_field => number_field.text.toInt)
 				var bound_condition = true
-				for (i <- 0 to result.length - 1 ) {
+				for (i <- 0 to result.length - 1 ) { // Sert à vérifier que les valeurs entrées dans les champs du formulaires sont bien dans les limites définies par fields_bounds_list
+													// Si ca n'est pas le cas, réinitialise la valeur du champ incorrect avec la moyenne de ses bornes inf et sup
 					if (!((fields_bounds_list(i)._1 <= result(i) && result(i) <= fields_bounds_list(i)._2)
 						|| fields_bounds_list(i)._1 == fields_bounds_list(i)._2)) {
 						bound_condition = false
@@ -63,7 +64,8 @@ class Number_Form(titre : String, fields_names_list : IndexedSeq[String], fields
 					}
 				}
 	
-				if (bound_condition) {
+				if (bound_condition) {	// Le formulaire a été correctement remplis, on "supprime la fenetre du formulaire et 
+										// la fonction qui a appelée le formulaire peut en récupérer les résultats dans l'IndexedSeq "result"
 					form_accepted = true
 					visible = false
 				}
