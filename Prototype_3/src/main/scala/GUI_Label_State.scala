@@ -22,6 +22,7 @@ abstract class Label_State[Game_Label_Class <: Grid_Label] {
 	val text: String
 
 	def change_to_state(game_label: Game_Label_Class) = {
+		game_label.state = state_name
 		game_label.preferredSize = new Dimension(size_x,size_y)
 		game_label.border = label_border
 		game_label.opaque = opaque

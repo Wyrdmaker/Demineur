@@ -28,8 +28,7 @@ trait Label_Borders extends Colors{
 	val black_dim_border = Swing.LineBorder(black_dim,1)
 	val blue_border = Swing.LineBorder(blue,1)
 }
-
-//Prend comme constructeur les paramètres définissant une partie du jeu (chaque jeu doit en créer une sous-classe en ajoutant les constructeurs)
+//Chaque jeu doit en créer uns sous-classe de type case class dont les constructeurs sont les paramètres définissant une partie du jeu.
 abstract class Difficulty_Mode {
 	//Doit modifier les variables paramètres du jeu pour qu'elles correspondent à celles du Difficulty_Mode
 	def set_game_parameters () :Unit 

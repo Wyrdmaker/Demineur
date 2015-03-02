@@ -60,7 +60,7 @@ trait Demineur_Label_States_Manager {
 }
 
 class Demineur_Label extends Grid_Label with Demineur_Label_States_Manager with Demineur_Graphical_Elements{
-	var state = "unexplored" //valeur nécessaire pour que les Demineurs_Label puissnet etre instanciés par Grid main inutile sinon
+	var state = "unexplored" //valeur nécessaire pour que les Demineurs_Label puissnet etre instanciés par Grid main, inutile sinon
 	var discovered = false
 	var flag = false
 	var value = "?"
