@@ -7,6 +7,7 @@ import java.text.DateFormat._
 import java.text.SimpleDateFormat
 //import java.awt.event.{ActionEvent, ActionListener}
 
+
 //import javax.swing.{ImageIcon, Icon}
 
 trait Demineur_Colors extends Colors {
@@ -50,10 +51,16 @@ object Demineur extends Game with Demineur_Graphical_Elements{
 	//var in_game = false héritée de Game
 
 	//##Game parameters##
-	var nb_of_rows = 0
-	var nb_of_cols = 0
-	def nb_of_bombs = game_parameter_1.toInt //Ces deux fonctions réalisent un alias de game_parameter_1: number_of_bombs qui sera utilisé comme un entier par le code du demineur
-	def nb_of_bombs_=(newval: Int) { game_parameter_1 = newval.toString }
+	//var nb_of_rows = 0
+	//var nb_of_cols = 0
+	var numeric_game_parameters_def_list = IndexedSeq(("Width", 0, 4, 25), ("Height", 0, 4, 25), ("Mines", 0, 10, 10))
+	var string_game_parameters_def_list = IndexedSeq(("Difficulty", "Easy", IndexedSeq("Easy", "Medium", "Hard", "Tricky")))
+	//def nb_of_bombs = game_parameter_1.toInt 
+	//def nb_of_bombs_=(newval: Int) { game_parameter_1 = newval.toString }
+	def nb_of_rows = numeric_game_parameters_def_list(0)._2
+	def nb_of_cols = numeric_game_parameters_def_list(1)._2
+	def nb_of_bombs = numeric_game_parameters_def_list(2)._2 //Ces deux fonctions réalisent un alias du champd valeur du 3ième paramètre numérique du Démineur
+	//def nb_of_bombs_=(new_value: Int) {Game_Parameters_Value_Setters.numeric_game_parameter_value_setter(2, new_value, Demineur)}
 	val game_parameter_1_name = "Mines"
 	//var game_parameter_2 = "" héritée de Game
 	val game_parameter_2_name = ""
@@ -68,9 +75,9 @@ object Demineur extends Game with Demineur_Graphical_Elements{
 	//var game_frame_content héritée de Game
 
 	val game_difficulty_mode_list = IndexedSeq(
-		Difficulty_Mode(9, 9, "10", "", "Easy"),
-		Difficulty_Mode(16, 16, "40", "", "Medium"),
-		Difficulty_Mode(16, 16, "99", "", "Hard")
+		Difficulty_Mode(IndexedSeq(9, 9, 10),IndexedSeq("Easy")),
+		Difficulty_Mode(IndexedSeq(16, 16, 40),IndexedSeq("Medium")),
+		Difficulty_Mode(IndexedSeq(16, 16, 99),IndexedSeq("Hard"))
 	)
 	val custom_game_parameters_bounds = IndexedSeq((4,25),(4,25),(10,10))
 	def custom_game_parameters_conditions (form_result: IndexedSeq[Int]) ={ //form_result(0) = nb_of_cols, form_result(1) = nb_of_rows, form_result(2) = nb_of_bombs
@@ -78,7 +85,7 @@ object Demineur extends Game with Demineur_Graphical_Elements{
 		return_value
  				
 	}	
-	def game_custom_mode () = {		
+	/*def game_custom_mode () = {		
 		var custom_grid_form = new Number_Form(
 			"Grille Perso",
 			IndexedSeq("x", "y",  "mines"),
@@ -98,7 +105,7 @@ object Demineur extends Game with Demineur_Graphical_Elements{
 			throw new Custom_Mode_Exception("formulaire pour mode custom mal rempli")
 
 		}		
-	}
+	}*/
 
 
 	def game_starter () = {
@@ -155,18 +162,21 @@ object Demineur extends Game with Demineur_Graphical_Elements{
 
 	//Met à jour le nombre de cases marquées par un drapeau en accord avec son argument. Met à jour le label du nombre de drapeaux de la fenetre (label_1)
 	def maj_nb_flag(n : Int /*normalement 1, -1 ou 0*/) = {
+		//DEBUG
 		n match {
 			case 1 => nb_flagged_square = nb_flagged_square + n 
 			case -1 => nb_flagged_square = nb_flagged_square + n
 			case 0 => nb_flagged_square = nb_flagged_square + n
 			case _ => println("anormal: la fonction maj_nb_flag de l'objet Demineur a été appelée avec un argument différent de 1, -1 ou 0:" + n)
 		}
+		//DEBUG
 		val label_1 = game_frame_content.label_1
 		label_1.text = "Mines : " + nb_flagged_square.toString + " / " + nb_of_bombs.toString
 		if (nb_flagged_square > nb_of_bombs)
 			label_1.foreground = red
 		else
 			label_1.foreground = black
+		//DEBUG
 	}
 
 	//Est appelée lors du premier clic sur un label.
@@ -211,5 +221,9 @@ object Main {
 	def main(args: Array[String]) {
 		val ui = new UI(Demineur)
 		ui.visible = true
+
+		//TEST
+		var l = IndexedSeq((1,2,3))
+		l.updated(0,(1,4,3))
 	}
 }

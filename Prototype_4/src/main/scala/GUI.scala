@@ -7,6 +7,10 @@ import java.text.DateFormat._
 import java.text.SimpleDateFormat
 import java.awt.event.{ActionEvent, ActionListener}
 //import javax.swing.{ImageIcon, Icon}
+//TEST
+import javax.swing.JPopupMenu
+//TEST
+import scala.swing.ComboBox
 
 trait Colors {
 	val black = new Color(0,0,0,255)
@@ -28,14 +32,83 @@ trait Label_Borders extends Colors{
 	val black_dim_border = Swing.LineBorder(black_dim,1)
 	val blue_border = Swing.LineBorder(blue,1)
 }
-//Chaque jeu doit l'instancier pour définir les modes de difficulté qu'il souhaite proposer et les regrouperdans la variable game_difficulty_mode_list sous la forme d'une IndexedSeq
-case class Difficulty_Mode(nb_of_cols: Int, nb_of_rows: Int, game_parameter_1: String, game_parameter_2: String, adjective: String) {
+//Chaque jeu doit l'instancier pour définir les modes de difficulté qu'il souhaite proposer et les regrouper dans la variable game_difficulty_mode_list sous la forme d'une IndexedSeq
+/*case class Difficulty_Mode(nb_of_cols: Int, nb_of_rows: Int, game_parameter_1: String, game_parameter_2: String, adjective: String) {
 	//Doit modifier les variables paramètres du jeu pour qu'elles correspondent à celles du Difficulty_Mode
 	def set_game_parameters (game: Game) ={
 		game.nb_of_rows = nb_of_rows
 		game.nb_of_cols = nb_of_cols
 		game.game_parameter_1 = game_parameter_1
 		game.game_parameter_2 = game_parameter_2
+	}
+}*/
+
+case class Difficulty_Mode(numeric_game_parameters_values_list: IndexedSeq[Int], string_game_parameters_values_list: IndexedSeq[String]) {
+	def set_game_parameters (game: Game) ={
+		if (numeric_game_parameters_values_list.length == game.numeric_game_parameters_def_list.length) {
+			for (i <- 0 until numeric_game_parameters_values_list.length) {
+				//game.numeric_game_parameters_def_list(i)._2 = numeric_game_parameters_values_list(i)
+				//Tout le bazar qui suit a pour but de modifier le champ correspondant à la valeur du paramètre numérique i du jeu, en lui assignant la ième valeur de la liste de valeurs pour les paramètres numérique du jeu du mode de difficulté
+				Game_Parameters_Value_Setters.numeric_game_parameter_value_setter(i, numeric_game_parameters_values_list(i), game)
+				//val old_numeric_parameter_def = game.numeric_game_parameters_def_list(i)
+				//var new_numeric_parameter_def = ("", 0, 0, 0)
+				//old_numeric_parameter_def match {
+				//	case (parameter_name, parameter_value, inf_bound, sup_bound) =>
+				//		new_numeric_parameter_def = (parameter_name, numeric_game_parameters_values_list(i), inf_bound, sup_bound)
+				//}
+				//game.numeric_game_parameters_def_list = game.numeric_game_parameters_def_list.updated(i,new_numeric_parameter_def)
+			}
+		}
+		else {println("Anormal: le nombre de valeurs pour les paramètres numériques du jeu déclarées dans un certain mode de difficulté n'est pas égal au nombre de paramètres numériques de ce jeu")}
+		if (string_game_parameters_values_list.length == game.string_game_parameters_def_list.length) {
+			for (i <- 0 until string_game_parameters_values_list.length) {
+				//game.string_game_parameters_def_list(i)._2 = string_game_parameters_values_list(i)
+				//Tout le bazar qui suit a pour but de modifier le champ correspondant à la valeur du paramètre textuel i du jeu, en lui assignant la ième valeur de la liste de valeurs pour les paramètres textuels du jeu du mode de difficulté
+				Game_Parameters_Value_Setters.string_game_parameter_value_setter(i, string_game_parameters_values_list(i), game)
+				//val old_string_parameter_def = game.string_game_parameters_def_list(i)
+				//var new_string_parameter_def = ("", "", IndexedSeq(""))
+				//old_string_parameter_def match{
+				//	case (parameter_name, parameter_value, parameter_possible_values) =>
+				//		new_string_parameter_def = (parameter_name, string_game_parameters_values_list(i), parameter_possible_values)
+				//}
+				//game.string_game_parameters_def_list = game.string_game_parameters_def_list.updated(i,new_string_parameter_def)
+			}
+		}
+		else {println("Anormal: le nombre de valeurs pour les paramètres textuels du jeu déclarées dans un certain mode de difficulté n'est pas égal au nombre de paramètres textuels de ce jeu")}
+
+	}
+}
+
+object Game_Parameters_Value_Setters {
+	//Cette méthode sert à modifier le champ correspondant à la valeur du paramètre numérique numéro no_parameter du jeu game, en lui assignant la valeur new_value
+	def numeric_game_parameter_value_setter (no_parameter: Int, new_value: Int, game: Game) = {
+		val old_numeric_parameter_def = game.numeric_game_parameters_def_list(no_parameter)
+		var new_numeric_parameter_def = ("", 0, 0, 0)
+		old_numeric_parameter_def match {
+			case (parameter_name, parameter_value, inf_bound, sup_bound) =>
+				new_numeric_parameter_def = (parameter_name, new_value, inf_bound, sup_bound)
+		}
+		game.numeric_game_parameters_def_list = game.numeric_game_parameters_def_list.updated(no_parameter, new_numeric_parameter_def)
+		 	//la méthode updated renvoie une autre liste identique à la première dans 
+			//laquelle le ième terme à été remplacé par le terme donné en deuxième 
+			//argument. On en a besoin ici car les IndexedSeq de types combiné 
+			//(ex: [Int,Int,IndexedSeq[String]]) sont immutables et donc non 
+			//modifiables de façon classique
+	}
+	//Cette méthode sert à modifier le champ correspondant à la valeur du paramètre textuel numéro no_parameter du jeu game, en lui assignant la valeur new_value
+	def string_game_parameter_value_setter (no_parameter: Int, new_value: String, game: Game) = {
+		val old_string_parameter_def = game.string_game_parameters_def_list(no_parameter)
+		var new_string_parameter_def = ("", "", IndexedSeq(""))
+		old_string_parameter_def match{
+			case (parameter_name, parameter_value, parameter_possible_values) =>
+				new_string_parameter_def = (parameter_name, new_value, parameter_possible_values)
+		}
+		game.string_game_parameters_def_list = game.string_game_parameters_def_list.updated(no_parameter,new_string_parameter_def)
+			//la méthode updated renvoie une autre liste identique à la première dans 
+			//laquelle le ième terme à été remplacé par le terme donné en deuxième 
+			//argument. On en a besoin ici car les IndexedSeq de types combiné 
+			//(ex: [Int,Int,IndexedSeq[String]]) sont immutables et donc non 
+			//modifiables de façon classique
 	}
 }
 
@@ -49,8 +122,13 @@ abstract class Game extends Colors{
 	var in_game = false
 
 	//Game parameters: ce qui permet de définir une partie du jeu, game_parameter_1 et _2 sont destinés à etre aliasés par le jeu pour qu'il leur donne un meilleur nom dans son code
-	var nb_of_rows: Int		//nombre de lignes de la grille
-	var nb_of_cols: Int		//nombre de colonnes de la grille
+	//var nb_of_rows: Int		//nombre de lignes de la grille
+	//var nb_of_cols: Int		//nombre de colonnes de la grille
+	var numeric_game_parameters_def_list: IndexedSeq[(String, Int, Int, Int)]		//liste des paramètres numériques du jeu sous la forme de tuples 
+																				//(nom, valeur, borne_inf_pour_mode_custom, borne_sup_pour_mode_custom) et dont les deux 
+																				//premiers doivent etre "Width" et "Height" (resp le nb de colonnes de la grille et 
+																				//le nb de lignes de la grille)
+	var string_game_parameters_def_list: IndexedSeq[(String, String, IndexedSeq[String])]	//liste des paramètres chaines de caractères du jeu sous la forme de tuples (nom, valeur, IndexedSeq_des_valeurs_possibles_de_ce_paramètre)
 	var game_parameter_1 = ""
 	val game_parameter_1_name: String //le nom que le jeu donne à game_parameter_1
 	var game_parameter_2 = ""
@@ -74,6 +152,7 @@ abstract class Game extends Colors{
 
 	def game_starter (): Unit // game_starter ne contient que les choses à faire avant de lancer une partie qui sont spécifiques au jeu, le reste est fait dans generic_game_starter
 	def game_action_restart (): Unit //game_action_restart ne contient que les choses à faire avant de relancer une partie qui sont spécifique au jeu, le reste est fait dans generic_action_restart
+
 	def win() = {
 		in_game = false
 		val outcome_label = game_frame_content.outcome_label
@@ -123,16 +202,25 @@ case class Custom_Mode_Exception(value: String) extends Throwable{}
 
 //UI est la fenetre principale des jeux
 class UI (game: Game) extends MainFrame {
+	/*
+	val seq = Seq("Artemis", "Freya", "Themis", "Athena")
+	val combox = new ComboBox(seq){
+		preferredSize = new Dimension(100,50)
+	}
+	contents = combox
+	println(combox.item)*/
 	val thisui = this
 	title = game.title
 	resizable = false
 	contents = new Label("Welcome ! ;)"){
 		preferredSize = new Dimension(300,300)
 	}
+	/*TOREMOVE
 	val game_parameter_1_is_used = //détermine si le jeu utilise le paramètre 1. 
 		if (game.game_parameter_1_name == "") {false} else {true}
 	val game_parameter_2_is_used = //détermine si le jeu utilise le paramètre 2
 		if (game.game_parameter_2_name == "") {false} else {true}
+	*/
 	val Game_Starter = new Generic_Game_Starter(game,thisui)
 	val Action_Restart = new Generic_Action_Restart(game)
 
@@ -151,30 +239,36 @@ class UI (game: Game) extends MainFrame {
 	}
 
 	def action_generic_custom_mode()  {
-		var fields_names_list = IndexedSeq("width", "height")
+		val nb_fields_def_list = game.numeric_game_parameters_def_list map (numeric_game_parameter_def => 
+			numeric_game_parameter_def match {
+				case (parameter_name, parameter_value, parameter_inf_bound, parameter_sup_bound) =>
+					(parameter_name, parameter_inf_bound, parameter_sup_bound)
+			}
+		)
+		val comboboxes_def_list = game.string_game_parameters_def_list map (string_game_parameter =>
+			string_game_parameter match {
+				case (parameter_name, parameter_value, parameter_possible_values) => 
+					(parameter_name, parameter_possible_values)
+			}
+		)
+		/*TOREMOVE
+		var fields_names_list = IndexedSeq("Width", "Height")
 		if (game_parameter_1_is_used) {
 			fields_names_list ++= IndexedSeq(game.game_parameter_1_name)
 		}
 		if (game_parameter_2_is_used) {
 			fields_names_list ++= IndexedSeq(game.game_parameter_2_name)
 		}
+		*/
 		try {
-			val custom_game_form = new Number_Form(
+			val custom_game_form = new Form(
 				"Custom Game",
-				fields_names_list,
-				game.custom_game_parameters_bounds)
-			val form_result = custom_game_form.result
-			var custom_difficulty_mode = Difficulty_Mode(0,0,"","","")
-			if (custom_game_form.form_accepted && game.custom_game_parameters_conditions(form_result)) {
-				var custom_game_parameter_1 = ""
-				var custom_game_parameter_2 = ""
-				if (game_parameter_1_is_used) {
-					custom_game_parameter_1 = form_result(2).toString
-				}
-				if (game_parameter_2_is_used) {
-					custom_game_parameter_2 = form_result(3).toString
-				}			
-				custom_difficulty_mode = Difficulty_Mode(form_result(0), form_result(1), custom_game_parameter_1, custom_game_parameter_2, "Custom" )
+				nb_fields_def_list,
+				comboboxes_def_list)
+			val form_nb_fields_results = custom_game_form.nb_fields_results
+			val form_comboboxes_results = custom_game_form.comboboxes_results
+			var custom_difficulty_mode = Difficulty_Mode(form_nb_fields_results, form_comboboxes_results)
+			if (custom_game_form.form_accepted && game.custom_game_parameters_conditions(form_nb_fields_results)) {
 				custom_difficulty_mode.set_game_parameters(game)
 				Game_Starter.generic_game_starter()
 			}
@@ -194,7 +288,7 @@ class UI (game: Game) extends MainFrame {
 		}
 		var difficulty_mode_name = ""
 		difficulty_mode match {
-			case Difficulty_Mode(nb_of_cols: Int, nb_of_rows: Int, game_parameter_1: String, game_parameter_2: String, adjective: String ) =>
+			/*case Difficulty_Mode(nb_of_cols: Int, nb_of_rows: Int, game_parameter_1: String, game_parameter_2: String, adjective: String ) =>
 				difficulty_mode_name = nb_of_cols.toString + "x" + nb_of_rows.toString
 				if (game_parameter_1_is_used) {
 					difficulty_mode_name += ", " + game_parameter_1 + " " + game.game_parameter_1_name
@@ -202,7 +296,19 @@ class UI (game: Game) extends MainFrame {
 				if (game_parameter_2_is_used) {
 					difficulty_mode_name += ", " + game_parameter_2 + " " + game.game_parameter_2_name
 				}
-				difficulty_mode_name += ", " + adjective
+				difficulty_mode_name += ", " + adjective*/
+			case Difficulty_Mode(numeric_game_parameters_values_list: IndexedSeq[Int], string_game_parameters_values_list: IndexedSeq[String]) =>
+				difficulty_mode_name = numeric_game_parameters_values_list(0).toString + "x" + numeric_game_parameters_values_list(1).toString
+				if (numeric_game_parameters_values_list.length > 2) {
+					for (i <- 2 until numeric_game_parameters_values_list.length) {
+						difficulty_mode_name += ", " + numeric_game_parameters_values_list(i).toString + " " + game.numeric_game_parameters_def_list(i)._1
+					}
+				}
+				if (string_game_parameters_values_list.length > 0) {
+					for (i <- 0 until string_game_parameters_values_list.length) {
+						difficulty_mode_name += ", " + string_game_parameters_values_list(i)
+					}
+				}
 		}
 		action = Action(difficulty_mode_name)(menuitem_action)
 	}
@@ -246,13 +352,10 @@ class Generic_Game_Starter (game: Game, ui: Frame) {
 	def generic_game_starter (): Unit ={
 		game.game_action_restart()
 
-
 		game.game_beginning_time = new Date()
-
 		val game_frame_content = new Game_Frame_Content[game.Game_Label_Class](game)
 		game.game_frame_content = game_frame_content
 		ui.contents = game_frame_content.final_content
-
 		game_frame_content.timer_label.restart(new Date())
 		game.game_starter()
 		game.in_game = true
