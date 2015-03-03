@@ -90,22 +90,26 @@ class Number_Form(titre : String, fields_names_list : IndexedSeq[String], fields
 		println(fields_bounds_list.length)
 	}
 }
+//La classe Form est une version améliorée de la classe Number_Form dans l'idée (mais ces deux classes sont indépendantes et s'utilisent différemment)
+//Form permet de créer un formulaire avec des champs numériques avec le meme système de bornes que Number_Form (bien que la façon de définir un champs numérique ait changé), mais le
+//formulaire peut également contenir des listes déroulantes pout demander des paramètres textuels (ce sont les "comboboxes")
 //les élements de nb_fields_def_list sont de la forme: (nom_du_champ_numérique, bornes_inf_du_résultat_attendu, borne_sup_du_résultat_attendu) (si borne_inf et borne_sup sont égales, il n'y a pas de contraintes)
 //les éléments de comboxes_def_list sont de la forme: (nom_de_la_combobox, IndexedSeq_des_chaines_de_charactères_de_la_combobox)
-class Form(titre : String, nb_fields_def_list: IndexedSeq[(String,Int,Int)] /*number_fields_names_list : IndexedSeq[String], number_fields_bounds_list : IndexedSeq[(Int,Int)]*/, comboboxes_def_list: IndexedSeq[(String, IndexedSeq[String])]) extends Dialog {
+//les résulats des champs numériques sont dans l'IndexedSeq nb_fields_results. Les résultats des champs textuels (comboboxes) sont dans l'IndexedSeq comboboxes_results
+class Form(titre : String, nb_fields_def_list: IndexedSeq[(String,Int,Int)], comboboxes_def_list: IndexedSeq[(String, IndexedSeq[String])]) extends Dialog {
 	val this_form = this
 	var nb_fields_results: IndexedSeq[Int] = null
 	var comboboxes_results: IndexedSeq[String] = null
 	var nb_fields_list: IndexedSeq[Number_Field] = null
 	var comboboxes_list = IndexedSeq(new ComboBox(Seq("bidon1", "bidon2")))
-	var nb_fields_panel = new GridPanel(1,1)
-	var comboboxes_panel = new GridPanel(1,1)
-	val no_nb_fields = (nb_fields_def_list == null)
-	val no_comboboxes = (comboboxes_def_list == null)
+	var nb_fields_panel = new GridPanel(1,1) //Valeur bidon
+	var comboboxes_panel = new GridPanel(1,1) //Valeur bidon
+	val no_nb_fields = (nb_fields_def_list == null) //Permet de savoir si le formulaire contient au moins un champs numérique ou non
+	val no_comboboxes = (comboboxes_def_list == null) //Permet de savoir si le formulaire contient au moins une combobox ou non
 	var form_accepted : Boolean = false
 	title = titre
 	modal = true
-	//Number Fields
+	//Création des Number Fields
 	if (!no_nb_fields) {
 		nb_fields_results = nb_fields_def_list map (nb_field_def => nb_field_def._2)
 		nb_fields_list = nb_fields_def_list map (nb_field_def =>
@@ -127,23 +131,8 @@ class Form(titre : String, nb_fields_def_list: IndexedSeq[(String,Int,Int)] /*nu
 			}
 			contents += new Label("")
 		}
-
-
-		/*var nb_fields_list = nb_fields_bounds_list map (couple =>
-			couple match {
-				case (min_value,max_value) => new Number_Field(((max_value + min_value)/2).toString)
-			})
-		val nb_fields_panel = new GridPanel(nb_fields_names_list.length + 1, 2) {
-			for (i <- 0 until nb_fields_names_list.length) {
-				var bounds_string = "  (" + nb_fields_bounds_list(i)._1 + "/" + nb_fields_bounds_list(i)._2 + ")"
-				if (nb_fields_bounds_list(i)._1 == nb_fields_bounds_list(i)._2) { bounds_string = ""}
-				contents += new Label(nb_fields_names_list(i) + bounds_string + " : ")
-				contents += nb_fields_list(i)
-			}
-			contents += new Label("")
-		}*/
 	}
-	//Comboboxes
+	//Création des Comboboxes
 	if (!no_comboboxes){
 		comboboxes_results = comboboxes_def_list map (combobox => "")
 	
@@ -162,7 +151,7 @@ class Form(titre : String, nb_fields_def_list: IndexedSeq[(String,Int,Int)] /*nu
 			contents += new Label("")
 		}
 	}
-	//Contenu final
+	//Contenu final du formulaire
 	val form_panel = new BoxPanel(Orientation.Vertical){
 		contents += nb_fields_panel
 		contents += comboboxes_panel

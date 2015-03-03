@@ -19,7 +19,7 @@ abstract class Grid_Label extends Label{
 
 //Crée un GridPanel d'une taille correspondant aux paramètres du jeu, puis le remplit avec des labels de la classe passée en argument.
 // Fournit aussi 3 fonctions pour accéder aux labels de la grille ainsi créée
-class Grid[Game_Label_Class <: Grid_Label] (game: Game) extends GridPanel(game.numeric_game_parameters_def_list(1)._2, game.numeric_game_parameters_def_list(0)._2) /*GridPanel prend le nb de lignes puis le nb de colonnes*/{
+class Grid[Game_Label_Class <: Grid_Label] (game: Game) extends GridPanel(game.numeric_game_parameters_def_list(1)._2, game.numeric_game_parameters_def_list(0)._2) /*GridPanel prend le nb de lignes puis le nb de colonnes de la grille*/{
 	val nb_of_cols = game.numeric_game_parameters_def_list(0)._2
 	val nb_of_rows = game.numeric_game_parameters_def_list(1)._2
 	//Remplir la grille d'objets de la classe Game_Label_Class

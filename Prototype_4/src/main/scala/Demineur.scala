@@ -51,20 +51,15 @@ object Demineur extends Game with Demineur_Graphical_Elements{
 	//var in_game = false héritée de Game
 
 	//##Game parameters##
-	//var nb_of_rows = 0
-	//var nb_of_cols = 0
 	var numeric_game_parameters_def_list = IndexedSeq(("Width", 0, 4, 25), ("Height", 0, 4, 25), ("Mines", 0, 10, 10))
 	var string_game_parameters_def_list = IndexedSeq(("Difficulty", "Easy", IndexedSeq("Easy", "Medium", "Hard", "Tricky")))
-	//def nb_of_bombs = game_parameter_1.toInt 
-	//def nb_of_bombs_=(newval: Int) { game_parameter_1 = newval.toString }
-	def nb_of_rows = numeric_game_parameters_def_list(0)._2
-	def nb_of_cols = numeric_game_parameters_def_list(1)._2
+	def nb_of_rows = numeric_game_parameters_def_list(1)._2  //fait de nb_of_rows un alias de la valeur du paramètre Height (ne marche que pour la lecture)
+	def nb_of_cols = numeric_game_parameters_def_list(0)._2  //fait de nb_of_cols un alias de la valeur du paramètre Width (ne marche que pour la lecture)
 	def nb_of_bombs = numeric_game_parameters_def_list(2)._2 //Ces deux fonctions réalisent un alias du champd valeur du 3ième paramètre numérique du Démineur
-	//def nb_of_bombs_=(new_value: Int) {Game_Parameters_Value_Setters.numeric_game_parameter_value_setter(2, new_value, Demineur)}
-	val game_parameter_1_name = "Mines"
-	//var game_parameter_2 = "" héritée de Game
-	val game_parameter_2_name = ""
-
+	
+	//Conservé pour futurs références mais inutile dans le démineur
+	/*def nb_of_bombs = game_parameter_1 //Ces deux fonctions font de nb_of_bombs un alias de la variable game_parameter_1
+	def nb_of_bombs_=(newval: Int) { game_parameter_1 = newval }*/
 
 	type Game_Label_Class = Demineur_Label
 	def glb_factory () = { new Game_Label_Class } // "glb" -> "Game_Label_Class"
@@ -79,34 +74,11 @@ object Demineur extends Game with Demineur_Graphical_Elements{
 		Difficulty_Mode(IndexedSeq(16, 16, 40),IndexedSeq("Medium")),
 		Difficulty_Mode(IndexedSeq(16, 16, 99),IndexedSeq("Hard"))
 	)
-	val custom_game_parameters_bounds = IndexedSeq((4,25),(4,25),(10,10))
-	def custom_game_parameters_conditions (form_result: IndexedSeq[Int]) ={ //form_result(0) = nb_of_cols, form_result(1) = nb_of_rows, form_result(2) = nb_of_bombs
-	 	val return_value = form_result(1) * form_result(0) > 9 && form_result(2) + 9 <= form_result(1) * form_result(0)
+	def custom_game_parameters_conditions (form_nb_fields_result: IndexedSeq[Int]) ={ //form_nb_fields_result(0) = nb_of_cols, form_nb_fields_result(1) = nb_of_rows, form_nb_fields_result(2) = nb_of_bombs
+	 	val return_value = form_nb_fields_result(1) * form_nb_fields_result(0) > 9 && form_nb_fields_result(2) + 9 <= form_nb_fields_result(1) * form_nb_fields_result(0)
 		return_value
  				
 	}	
-	/*def game_custom_mode () = {		
-		var custom_grid_form = new Number_Form(
-			"Grille Perso",
-			IndexedSeq("x", "y",  "mines"),
-			IndexedSeq((4,25), (4,25), (10,10))
-		)
-		val form_result = custom_grid_form.result
-		val asked_nb_of_cols = form_result(0)
-		val asked_nb_of_rows = form_result(1)
-		val asked_nb_of_bombs = form_result(2)
-		if (	custom_grid_form.form_accepted 
-			&& 	asked_nb_of_cols * asked_nb_of_rows > 9 
-			&& 	asked_nb_of_bombs + 9 <= asked_nb_of_cols * asked_nb_of_rows) {
-			new Difficulty_Mode(asked_nb_of_cols, asked_nb_of_rows, asked_nb_of_bombs.toString,"", "Custom")
-		}
-		else {
-			println("Les réponses au formulaire ne permettent pas de créer une grille convenable")
-			throw new Custom_Mode_Exception("formulaire pour mode custom mal rempli")
-
-		}		
-	}*/
-
 
 	def game_starter () = {
 		Demineur.maj_nb_flag(0)
@@ -130,11 +102,11 @@ object Demineur extends Game with Demineur_Graphical_Elements{
 		super.lose()
 	}
 
-	//##Demineur Variables##
+	//##Demineur Variables## // Variables internes au Démineur
 	var nb_discovered_square = 0
 	var nb_flagged_square = 0
 
-	//##Demineur Functions##
+	//##Demineur Functions## //Fonctions internes au Démineur
 
 	//Incremente le nombres de cases découvertes et déclenche éventuellement la victoire
 	def increment_nb_discovered_square() = {
@@ -221,9 +193,5 @@ object Main {
 	def main(args: Array[String]) {
 		val ui = new UI(Demineur)
 		ui.visible = true
-
-		//TEST
-		var l = IndexedSeq((1,2,3))
-		l.updated(0,(1,4,3))
 	}
 }
