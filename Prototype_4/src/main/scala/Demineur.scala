@@ -75,9 +75,9 @@ object Demineur extends Game with Demineur_Graphical_Elements{
 		Difficulty_Mode(IndexedSeq(16, 16, 99),IndexedSeq("Hard"))
 	)
 	def custom_game_parameters_conditions (form_nb_fields_result: IndexedSeq[Int]) ={ //form_nb_fields_result(0) = nb_of_cols, form_nb_fields_result(1) = nb_of_rows, form_nb_fields_result(2) = nb_of_bombs
-	 	val return_value = form_nb_fields_result(1) * form_nb_fields_result(0) > 9 && form_nb_fields_result(2) + 9 <= form_nb_fields_result(1) * form_nb_fields_result(0)
+		val return_value = form_nb_fields_result(1) * form_nb_fields_result(0) > 9 && form_nb_fields_result(2) + 9 <= form_nb_fields_result(1) * form_nb_fields_result(0)
 		return_value
- 				
+				
 	}	
 
 	def game_starter () = {
@@ -119,16 +119,16 @@ object Demineur extends Game with Demineur_Graphical_Elements{
 	def neighbour(n : Int) : List[Int] = {
 		var lst : List[Int]= List()
 		var a = if (n % nb_of_cols == 0) 0 else -1 //bord gauche du carré
-        var b = if (n % nb_of_cols == nb_of_cols - 1) 0 else 1 //bord droit du carré
-        var c = if (n < nb_of_cols) 0 else -1 // bord haut du carré
-        var d = if (n >= (nb_of_rows - 1) * nb_of_cols) 0 else 1 // bord bas du carré
-        for (i <- a to b) {
-            for (j <- c to d) {
-                if (0 <= n + j * nb_of_cols + i && n + j * nb_of_cols + i < nb_of_rows * nb_of_cols) {
-                    lst ++= List(n + j * nb_of_cols + i) // LOLILOOOL
-                }
-            }
-        }
+		var b = if (n % nb_of_cols == nb_of_cols - 1) 0 else 1 //bord droit du carré
+		var c = if (n < nb_of_cols) 0 else -1 // bord haut du carré
+		var d = if (n >= (nb_of_rows - 1) * nb_of_cols) 0 else 1 // bord bas du carré
+		for (i <- a to b) {
+			for (j <- c to d) {
+				if (0 <= n + j * nb_of_cols + i && n + j * nb_of_cols + i < nb_of_rows * nb_of_cols) {
+					lst ++= List(n + j * nb_of_cols + i) // LOLILOOOL
+				}
+			}
+		}
 		return lst	
 	}
 

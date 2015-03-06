@@ -302,14 +302,5 @@ class Generic_Game_Starter (game: Game, ui: Frame) {
 		game.in_game = true
 	}
 }
-
-
-
-
-
 }
-
-
-
-
 

@@ -30,4 +30,4 @@ abstract class Label_State[Game_Label_Class <: Grid_Label] {
 		game_label.foreground = foreground
 		game_label.text = text
 	}
-} 
+}

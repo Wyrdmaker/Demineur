@@ -23,8 +23,8 @@ class Label_State_Explored extends Demineur_Label_State {
 	val background = label_color_explored
 	val text = ""
 	override def change_to_state(d_label: Demineur_Label) = {
-  		super.change_to_state(d_label)
-  		d_label.value match {
+		super.change_to_state(d_label)
+		d_label.value match {
 			case "b" =>
 				d_label.text = d_label.value
 			case "0" =>
@@ -76,12 +76,12 @@ class Demineur_Label extends Grid_Label with Demineur_Label_States_Manager with 
 	}
 
 	reactions += {
-        case e : MouseEntered =>
+		case e : MouseEntered =>
 			if (!discovered) 
-            	border = blue_border
-        case e : MouseExited =>
+				border = blue_border
+		case e : MouseExited =>
 			if (!discovered)
-          		border = black_border
+				border = black_border
 		case e : MouseClicked =>
 			if (e.peer.getButton == java.awt.event.MouseEvent.BUTTON1 && !flag)
 				discover()
@@ -107,7 +107,7 @@ class Demineur_Label extends Grid_Label with Demineur_Label_States_Manager with 
 	def discover() : Unit = {
 		if (!discovered) {	//pas utile car seuls les label non découverts écoutent les clics de souris, mais plus clair
 			deafTo(mouse.moves, mouse.clicks)
-            discovered = true
+			discovered = true
 			Demineur.increment_nb_discovered_square()
 			if (value == "?") //ie ce label est le premier à etre cliqué dans cette partie
 				Demineur.place_bombs(numero)
