@@ -1,26 +1,26 @@
 import scala.swing._
 import scala.swing.event._
 
-abstract class Demineur_Label_State extends Label_State[Demineur_Label] with Demineur_Graphical_Elements {
+abstract class Demineur_Label_State extends Label_State[Demineur_Label] {
 	val size_x = Demineur.square_size_x
 	val size_y = Demineur.square_size_y
 	val opaque = true
-	val foreground = black
+	val foreground = DGE.black
 }
 
 class Label_State_Unexplored extends Demineur_Label_State{
 	val state_name = "unexplored"
 
-	val label_border = black_border
-	val background = label_color_unexplored
+	val label_border = DGE.black_border
+	val background = DGE.label_color_unexplored
 	val text = ""
 }
 
 class Label_State_Explored extends Demineur_Label_State {
 	val state_name = "explored"
 
-	val label_border = black_dim_border
-	val background = label_color_explored
+	val label_border = DGE.black_dim_border
+	val background = DGE.label_color_explored
 	val text = ""
 	override def change_to_state(d_label: Demineur_Label) = {
 		super.change_to_state(d_label)
@@ -31,7 +31,7 @@ class Label_State_Explored extends Demineur_Label_State {
 				d_label.text = ""
 			case _   =>
 				d_label.text = d_label.value
-				d_label.foreground = Demineur.demineur_color_list(d_label.text.toInt)
+				d_label.foreground = DGE.demineur_color_list(d_label.text.toInt)
 		}
 	}
 }
@@ -39,8 +39,8 @@ class Label_State_Explored extends Demineur_Label_State {
 class Label_State_Flagged extends Demineur_Label_State {
 	val state_name = "flagged"
 
-	val label_border = black_border
-	val background = label_color_flagged
+	val label_border = DGE.black_border
+	val background = DGE.label_color_flagged
 	val text = ""
 }
 
@@ -59,7 +59,7 @@ trait Demineur_Label_States_Manager {
 	}
 }
 
-class Demineur_Label extends Grid_Label with Demineur_Label_States_Manager with Demineur_Graphical_Elements{
+class Demineur_Label extends Grid_Label with Demineur_Label_States_Manager /*with Demineur_Graphical_Elements*/{
 	var state = "unexplored" //valeur nécessaire pour que les Demineurs_Label puissnet etre instanciés par Grid main, inutile sinon
 	var discovered = false
 	var flag = false
@@ -78,10 +78,10 @@ class Demineur_Label extends Grid_Label with Demineur_Label_States_Manager with 
 	reactions += {
 		case e : MouseEntered =>
 			if (!discovered) 
-				border = blue_border
+				border = DGE.blue_border
 		case e : MouseExited =>
 			if (!discovered)
-				border = black_border
+				border = DGE.black_border
 		case e : MouseClicked =>
 			if (e.peer.getButton == java.awt.event.MouseEvent.BUTTON1 && !flag)
 				discover()
@@ -115,14 +115,14 @@ class Demineur_Label extends Grid_Label with Demineur_Label_States_Manager with 
 			value match {
 				case "b" =>
 					text = "X"
-					background = red
+					background = DGE.red
 					Demineur.lose()
 				case "0" =>
 					text = ""
 					Demineur.spread(numero)
 				case _   =>
 					text = value
-					foreground = Demineur.demineur_color_list(text.toInt)
+					foreground = DGE.demineur_color_list(text.toInt)
 			}
 		}
 	}

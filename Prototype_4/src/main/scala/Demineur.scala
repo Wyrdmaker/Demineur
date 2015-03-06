@@ -9,15 +9,53 @@ import java.text.SimpleDateFormat
 
 
 //import javax.swing.{ImageIcon, Icon}
-
+/*
 trait Demineur_Colors extends Colors {
-	val label_color_unexplored = new Color(255,100,0)
-	val label_color_explored = new Color(255,200,100)
-	val label_color_flagged = new Color(255,50,50)
+	val label_color_unexplored = /*new Color(255,100,0)*/ purple /*new Color(255,0,255)*/
+	val label_color_explored = /*new Color(255,200,100)*/ new Color(50,50,50) /*new Color(50,205,255)*/
+	val label_color_flagged = /*new Color(255,50,50)*/ cyan /*new Color(30,255,30) */
 
+}*/
+//"DGE" -> "Demineur_Graphical_Element"
+object DGE extends Colors with Label_Borders{
+	//var label_color_unexplored = /*new Color(255,100,0)*/ red /*new Color(255,0,255)*/
+	//var label_color_explored = /*new Color(255,200,100)*/ new Color(50,50,50) /*new Color(50,205,255)*/
+	//var label_color_flagged = /*new Color(255,50,50)*/ cyan /*new Color(30,255,30) */
+	def no_color () = {
+		Demineur.color_parameter match {
+			case "Creepy-Glauque" => 1
+			case "RVB" => 2
+			case _ => 0
+		}
+	}
+
+	def label_color_unexplored () = {
+		label_color_unexplored_list(no_color())
+	}
+	def label_color_explored () ={
+		label_color_explored_list(no_color)
+	}
+	def label_color_flagged () ={
+		label_color_flagged_list(no_color)
+	}
+
+
+	val label_color_unexplored_list = IndexedSeq(new Color(255,100,0), new Color(255, 0, 255), DGE.green)
+	val label_color_explored_list = IndexedSeq(new Color(255,200,100), new Color(50,50,50), DGE.red)
+	val label_color_flagged_list = IndexedSeq(new Color(255,50,50), DGE.cyan, DGE.blue)
+
+	val demineur_color_list = List (
+	white,
+	blue,
+	green,
+	red,
+	cyan,
+	purple,
+	light_green,
+	light_brown
+)
 }
-
-trait Demineur_Graphical_Elements extends Demineur_Colors with Label_Borders {
+/*trait Demineur_Graphical_Elements extends Demineur_Colors with Label_Borders {
 	val demineur_color_list = List (
 		white,
 		blue,
@@ -28,7 +66,7 @@ trait Demineur_Graphical_Elements extends Demineur_Colors with Label_Borders {
 		light_green,
 		light_brown
 	)
-}
+}*/
 
 class Demineur_Help_Frame extends Frame {
 	title = "Help"
@@ -42,7 +80,7 @@ class Demineur_About_Frame extends Frame{
 	visible = true
 }
 
-object Demineur extends Game with Demineur_Graphical_Elements{
+object Demineur extends Game /*with Demineur_Graphical_Elements*/{
 	val title = "Démineur"
 
 	val square_size_x = 35
@@ -52,11 +90,12 @@ object Demineur extends Game with Demineur_Graphical_Elements{
 
 	//##Game parameters##
 	var numeric_game_parameters_def_list = IndexedSeq(("Width", 0, 4, 25), ("Height", 0, 4, 25), ("Mines", 0, 10, 10))
-	var string_game_parameters_def_list = IndexedSeq(("Difficulty", "Easy", IndexedSeq("Easy", "Medium", "Hard", "Tricky")))
+	var string_game_parameters_def_list = IndexedSeq(("Difficulty", "Easy", IndexedSeq("Easy", "Medium", "Hard", "Tricky")), ("Colours", "Normal", IndexedSeq("Normal", "Creepy-Glauque", "RVB")))
 	def nb_of_rows = numeric_game_parameters_def_list(1)._2  //fait de nb_of_rows un alias de la valeur du paramètre Height (ne marche que pour la lecture)
 	def nb_of_cols = numeric_game_parameters_def_list(0)._2  //fait de nb_of_cols un alias de la valeur du paramètre Width (ne marche que pour la lecture)
 	def nb_of_bombs = numeric_game_parameters_def_list(2)._2 //Ces deux fonctions réalisent un alias du champd valeur du 3ième paramètre numérique du Démineur
-	
+	def color_parameter = string_game_parameters_def_list(1)._2
+		
 	//Conservé pour futurs références mais inutile dans le démineur
 	/*def nb_of_bombs = game_parameter_1 //Ces deux fonctions font de nb_of_bombs un alias de la variable game_parameter_1
 	def nb_of_bombs_=(newval: Int) { game_parameter_1 = newval }*/
@@ -70,9 +109,9 @@ object Demineur extends Game with Demineur_Graphical_Elements{
 	//var game_frame_content héritée de Game
 
 	val game_difficulty_mode_list = IndexedSeq(
-		Difficulty_Mode(IndexedSeq(9, 9, 10),IndexedSeq("Easy")),
-		Difficulty_Mode(IndexedSeq(16, 16, 40),IndexedSeq("Medium")),
-		Difficulty_Mode(IndexedSeq(16, 16, 99),IndexedSeq("Hard"))
+		Difficulty_Mode(IndexedSeq(9, 9, 10),IndexedSeq("Easy", "Normal")),
+		Difficulty_Mode(IndexedSeq(16, 16, 40),IndexedSeq("Medium", "Normal")),
+		Difficulty_Mode(IndexedSeq(16, 16, 99),IndexedSeq("Hard", "Normal"))	
 	)
 	def custom_game_parameters_conditions (form_nb_fields_result: IndexedSeq[Int]) ={ //form_nb_fields_result(0) = nb_of_cols, form_nb_fields_result(1) = nb_of_rows, form_nb_fields_result(2) = nb_of_bombs
 		val return_value = form_nb_fields_result(1) * form_nb_fields_result(0) > 9 && form_nb_fields_result(2) + 9 <= form_nb_fields_result(1) * form_nb_fields_result(0)

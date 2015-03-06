@@ -22,6 +22,9 @@ trait Colors {
 	val light_green = new Color(50,200,120)
 	val light_brown = new Color(200,120,50)
 	val color9 = new Color(0,200,200)
+
+	val violet_fluo = new Color(255,0,255)
+	val bleu_clair = new Color(50,205,255)
 }
 
 trait Label_Borders extends Colors{
