@@ -17,6 +17,22 @@ class Number_Field(init_string : String) extends TextField(init_string) {
 				e.consume
 	}
 }
+
+//Une sous classe de Number_Field équippée d'une sécurité. Si le champs est laissé vide ou si la valeur entrée n'est pas entre les 
+//deux bornes, la valeur du champs sera remises à default_value.
+//Comme d'habitude, si inf_bound = sup_bound, il n'y a pas de restrictions
+class Secured_Number_Field(default_value: Int, inf_bound: Int, sup_bound: Int) extends Number_Field(default_value.toString){
+	listenTo(this)
+	reactions += {
+		case e: EditDone =>
+			if (this.text.length == 0)
+				this.text = default_value.toString
+			else if (!(inf_bound <= this.text.toInt && this.text.toInt <= sup_bound) && !(inf_bound == sup_bound))
+					this.text = default_value.toString
+
+	}
+}
+
 //La classe Number Form permet de demander au joueur des renseignements chiffrés
 //Les noms des champs doivent etre fournis sous forme de IndexedSeq -> fields_names_list
 //Les couples d'Int de fields_bounds_list représentent le min et le max que l'utilisateur peut rentrer dans le formulaire pour chaque champs
@@ -116,7 +132,7 @@ class Form(titre : String, nb_fields_def_list: IndexedSeq[(String,Int,Int)], com
 		nb_fields_list = nb_fields_def_list map (nb_field_def =>
 			nb_field_def match {
 				case (nb_field_name, inf_bound, sup_bound) =>
-				new Number_Field(((inf_bound + sup_bound)/2).toString)
+				new Secured_Number_Field(((inf_bound + sup_bound)/2), inf_bound, sup_bound)
 			}
 		)
 		nb_fields_panel = new GridPanel(nb_fields_def_list.length + 1, 2){
@@ -175,57 +191,39 @@ class Form(titre : String, nb_fields_def_list: IndexedSeq[(String,Int,Int)], com
 				}
 				if (nonempty_condition == true) {
 					nb_fields_results = nb_fields_list map (nb_field => nb_field.text.toInt)
-					var bound_condition = true
-					for (i <- 0 to nb_fields_results.length - 1 ) { // Sert à vérifier que les valeurs entrées dans les champs du formulaires sont bien dans les limites définies par nb_fields_bounds_list
-														// Si ca n'est pas le cas, réinitialise la valeur du champ incorrect avec la moyenne de ses bornes inf et sup
-						nb_fields_def_list(i) match{
-							case (field_name, inf_bound, sup_bound) =>
-								if (!((inf_bound <= nb_fields_results(i) && nb_fields_results(i) <= sup_bound)
-								|| inf_bound == sup_bound)) {
-									bound_condition = false
-									nb_fields_list(i).text = ((inf_bound + sup_bound)/2).toString
-								}							
+					special_condition(nb_fields_results) match {
+						case "OK" => {
+							// Le formulaire a été correctement remplis, on "supprime la fenetre du formulaire et 
+							// la fonction qui a appelée le formulaire peut en récupérer les résultats dans l'IndexedSeq "nb_fields_results"
+							form_accepted = true
+							this_form.visible = false
 						}
-
-					}
-					if (bound_condition) { //Les paramètres numériques entrés par l'utilisateur satisfont les contraintes de bornes, on cherche maintenant s'il vérifient la condition du paramètre "condition"
-						special_condition(nb_fields_results) match {
-							case "OK" => {
-								// Le formulaire a été correctement remplis, on "supprime la fenetre du formulaire et 
-								// la fonction qui a appelée le formulaire peut en récupérer les résultats dans l'IndexedSeq "nb_fields_results"
-								form_accepted = true
-								this_form.visible = false
+						case error_message => {
+							//Les réponses aux champs numériques du formulaire ne satisfont pas la special_condition
+							//On remet les valeurs de tout les champs numériques à leurs valeurs par défaut et
+							//on affiche une fenetre contenant le message d'erreur renvoyé par special_condition.
+							//Cette fenetre disparait quand on clique sur le bouton
+							for (i <- 0 until nb_fields_list.length) {
+								nb_fields_def_list(i) match {
+									case (field_name, inf_bound, sup_bound) =>
+										nb_fields_list(i).text = ((inf_bound + sup_bound)/2).toString
+									}
 							}
-							case error_message => {
-								//Les réponses aux champs numériques du formulaire ne satisfont pas la special_condition
-								//On remet les valeurs de tout les champs numériques à leurs valeurs par défaut et
-								//on affiche une fenetre contenant le message d'erreur renvoyé par special_condition.
-								//Cette fenetre disparait quand on clique sur le bouton
-								for (i <- 0 until nb_fields_list.length) {
-									nb_fields_def_list(i) match {
-										case (field_name, inf_bound, sup_bound) =>
-											nb_fields_list(i).text = ((inf_bound + sup_bound)/2).toString
-									}
+							var error_message_window = new Dialog {
+								modal = true
+								val this_dialog = this
+								title = "Formulaire mal remplis"
+								def close_error_window ={
+									this_dialog.visible = false
 								}
-								var error_message_window = new Dialog {
-									modal = true
-									val this_dialog = this
-									title = "Formulaire mal remplis"
-									def close_error_window ={
-										this_dialog.visible = false
-									}
-									contents = new Button(error_message) {
-										//preferredSize = new Dimension(300,150)
-										action = Action(error_message)(close_error_window)
-									}
-
-
+								contents = new Button(error_message) {
+									action = Action(error_message)(close_error_window)
 								}
-								error_message_window.visible = true
 							}
-
+							error_message_window.visible = true
 						}
 					}
+					
 				}
 				else {
 					println("Certains des champs du formulaire sont vides")
