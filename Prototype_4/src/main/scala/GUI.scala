@@ -114,10 +114,11 @@ abstract class Game extends GUI_Colours{
 	var game_frame_content : Game_Frame_Content[Game_Label_Class] = null 	//Variable stockant le contenu graphique de la fenetre de jeu lors d'une partie
 
 	val game_difficulty_mode_list : IndexedSeq[Difficulty_Mode] 	//Liste des modes de difficulté que le jeu veut proposer
-	def custom_game_parameters_conditions (form_nb_fields_result: IndexedSeq[Int]): Boolean	//Une fonction qui, aux résultat des champs numériques d'un formulaire
+	def custom_game_parameters_conditions (form_nb_fields_result: IndexedSeq[Int]): String	//Une fonction qui, aux résultat des champs numériques d'un formulaire
 																							// de partie custom, vérifie des conditions propres au jeu 
 																							//(si ces paramètres permettent de jouer au jeu ou non) et 
-																							//renvoie le résultat booléen de cette vérification
+																							//renvoie "OK" si les valeurs reçus vérifient ces conditions et une 
+																							//string contenant le message d'erreur sinon
 	def game_starter (): Unit 	// game_starter ne contient que les choses à faire avant de lancer une partie qui sont spécifiques au jeu, le reste 
 								//est fait dans generic_game_starter
 	def game_action_restart (): Unit 	//game_action_restart ne contient que les choses à faire avant de relancer une partie qui sont spécifique au jeu, le reste 
@@ -212,19 +213,18 @@ class UI (game: Game) extends MainFrame {
 			val custom_game_form = new Form(
 				"Custom Game",
 				nb_fields_def_list,
-				comboboxes_def_list)
+				comboboxes_def_list,
+				game.custom_game_parameters_conditions)
 			val form_nb_fields_results = custom_game_form.nb_fields_results		//Les résultats numériques du formulaire
 			val form_comboboxes_results = custom_game_form.comboboxes_results	//Les résultats textuels du formulaire	 
 			var custom_difficulty_mode = Difficulty_Mode(form_nb_fields_results, form_comboboxes_results)
-			if (custom_game_form.form_accepted && game.custom_game_parameters_conditions(form_nb_fields_results)) { // Vérifie que le formulaire soit accepté 
-																													//(en pratique, ça attend que le joueur ait cliqué
-																													// sur le bouton fini),  et vérifie que les conditions
-																													// du jeu sur les paramètres numériques soient
-																													// respectées
+			if (custom_game_form.form_accepted) {	// Vérifie que le formulaire soit accepté 
+													//(en pratique, ça attend que le joueur ait cliqué
+													// sur le bouton fini),
 				custom_difficulty_mode.set_game_parameters(game)
 				Game_Starter.generic_game_starter()
 			}
-			else {println("Les réponses au formulaire ne permettent pas de lancer une partie ou le formulaire a été fermé")}
+			else {println("le formulaire a été fermé")}
 
 		}
 		catch {

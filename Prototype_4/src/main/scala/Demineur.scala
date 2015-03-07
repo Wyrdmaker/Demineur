@@ -114,7 +114,12 @@ object Demineur extends Game /*with Demineur_Graphical_Elements*/{
 		Difficulty_Mode(IndexedSeq(16, 16, 99),IndexedSeq("Hard", "Normal"))	
 	)
 	def custom_game_parameters_conditions (form_nb_fields_result: IndexedSeq[Int]) ={ //form_nb_fields_result(0) = nb_of_cols, form_nb_fields_result(1) = nb_of_rows, form_nb_fields_result(2) = nb_of_bombs
-		val return_value = form_nb_fields_result(1) * form_nb_fields_result(0) > 9 && form_nb_fields_result(2) + 9 <= form_nb_fields_result(1) * form_nb_fields_result(0)
+		//val return_value = form_nb_fields_result(1) * form_nb_fields_result(0) > 9 && form_nb_fields_result(2) + 9 <= form_nb_fields_result(1) * form_nb_fields_result(0)
+		var return_value = "OK"
+		if (form_nb_fields_result(1) * form_nb_fields_result(0) <= 9) 
+			return_value = "Grille trop petite"
+		if (form_nb_fields_result(2) + 9 > form_nb_fields_result(1) * form_nb_fields_result(0))
+			return_value = "Pas assez de place dans la grille pour les mines"
 		return_value
 				
 	}	

@@ -93,10 +93,11 @@ class Number_Form(titre : String, fields_names_list : IndexedSeq[String], fields
 //La classe Form est une version améliorée de la classe Number_Form dans l'idée (mais ces deux classes sont indépendantes et s'utilisent différemment)
 //Form permet de créer un formulaire avec des champs numériques avec le meme système de bornes que Number_Form (bien que la façon de définir un champs numérique ait changé), mais le
 //formulaire peut également contenir des listes déroulantes pout demander des paramètres textuels (ce sont les "comboboxes")
+//Le paramètre "special_condition" est une fonction prenant en entrée une IndexedSeq des valeurs des champs numériques entrées par l'utilisateur et qui renvoie "OK" si les résultats sont acceptables ou une string contenant le message d'erreur sinon
 //les élements de nb_fields_def_list sont de la forme: (nom_du_champ_numérique, bornes_inf_du_résultat_attendu, borne_sup_du_résultat_attendu) (si borne_inf et borne_sup sont égales, il n'y a pas de contraintes)
 //les éléments de comboxes_def_list sont de la forme: (nom_de_la_combobox, IndexedSeq_des_chaines_de_charactères_de_la_combobox)
 //les résulats des champs numériques sont dans l'IndexedSeq nb_fields_results. Les résultats des champs textuels (comboboxes) sont dans l'IndexedSeq comboboxes_results
-class Form(titre : String, nb_fields_def_list: IndexedSeq[(String,Int,Int)], comboboxes_def_list: IndexedSeq[(String, IndexedSeq[String])]) extends Dialog {
+class Form(titre : String, nb_fields_def_list: IndexedSeq[(String,Int,Int)], comboboxes_def_list: IndexedSeq[(String, IndexedSeq[String])], special_condition: IndexedSeq[Int] => String) extends Dialog {
 	val this_form = this
 	var nb_fields_results: IndexedSeq[Int] = null
 	var comboboxes_results: IndexedSeq[String] = null
@@ -187,15 +188,43 @@ class Form(titre : String, nb_fields_def_list: IndexedSeq[(String,Int,Int)], com
 						}
 
 					}
-		
-					if (bound_condition) {	// Le formulaire a été correctement remplis, on "supprime la fenetre du formulaire et 
-											// la fonction qui a appelée le formulaire peut en récupérer les résultats dans l'IndexedSeq "nb_fields_results"
-						form_accepted = true
-						this_form.visible = false
-					}
-					else {
-						println("Les réponses aux formulaires ne sont pas dans les bornes définies")
-					
+					if (bound_condition) { //Les paramètres numériques entrés par l'utilisateur satisfont les contraintes de bornes, on cherche maintenant s'il vérifient la condition du paramètre "condition"
+						special_condition(nb_fields_results) match {
+							case "OK" => {
+								// Le formulaire a été correctement remplis, on "supprime la fenetre du formulaire et 
+								// la fonction qui a appelée le formulaire peut en récupérer les résultats dans l'IndexedSeq "nb_fields_results"
+								form_accepted = true
+								this_form.visible = false
+							}
+							case error_message => {
+								//Les réponses aux champs numériques du formulaire ne satisfont pas la special_condition
+								//On remet les valeurs de tout les champs numériques à leurs valeurs par défaut et
+								//on affiche une fenetre contenant le message d'erreur renvoyé par special_condition.
+								//Cette fenetre disparait quand on clique sur le bouton
+								for (i <- 0 until nb_fields_list.length) {
+									nb_fields_def_list(i) match {
+										case (field_name, inf_bound, sup_bound) =>
+											nb_fields_list(i).text = ((inf_bound + sup_bound)/2).toString
+									}
+								}
+								var error_message_window = new Dialog {
+									modal = true
+									val this_dialog = this
+									title = "Formulaire mal remplis"
+									def close_error_window ={
+										this_dialog.visible = false
+									}
+									contents = new Button(error_message) {
+										//preferredSize = new Dimension(300,150)
+										action = Action(error_message)(close_error_window)
+									}
+
+
+								}
+								error_message_window.visible = true
+							}
+
+						}
 					}
 				}
 				else {

@@ -14,6 +14,7 @@ abstract class Grid_Label extends Label{
 	var numero = 0
 	var state: String
 
+	listenTo(mouse.moves, mouse.clicks)
 	//Ces fonctions sont à overrider par les labels des jeux pour définir leurs réactions face à différents évènements de souris
 	def mouse_enter_reaction () ={	//Lorsque la souris entre dans la zone du label
 	}
