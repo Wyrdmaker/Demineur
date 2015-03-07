@@ -17,11 +17,11 @@ trait Demineur_Colors extends Colors {
 
 }*/
 //"DGE" -> "Demineur_Graphical_Element"
-object DGE extends Colors with Label_Borders{
+object DGE extends GUI_Colours with Label_Borders{
 	//var label_color_unexplored = /*new Color(255,100,0)*/ red /*new Color(255,0,255)*/
 	//var label_color_explored = /*new Color(255,200,100)*/ new Color(50,50,50) /*new Color(50,205,255)*/
 	//var label_color_flagged = /*new Color(255,50,50)*/ cyan /*new Color(30,255,30) */
-	def no_color () = {
+	def no_color_mode () = {
 		Demineur.color_parameter match {
 			case "Creepy-Glauque" => 1
 			case "RVB" => 2
@@ -30,18 +30,18 @@ object DGE extends Colors with Label_Borders{
 	}
 
 	def label_color_unexplored () = {
-		label_color_unexplored_list(no_color())
+		label_color_unexplored_list(no_color_mode())
 	}
 	def label_color_explored () ={
-		label_color_explored_list(no_color)
+		label_color_explored_list(no_color_mode)
 	}
 	def label_color_flagged () ={
-		label_color_flagged_list(no_color)
+		label_color_flagged_list(no_color_mode)
 	}
 
 
 	val label_color_unexplored_list = IndexedSeq(new Color(255,100,0), new Color(255, 0, 255), DGE.green)
-	val label_color_explored_list = IndexedSeq(new Color(255,200,100), new Color(50,50,50), DGE.red)
+	val label_color_explored_list = IndexedSeq(new Color(255,200,100), new Color(65,65,65), DGE.red)
 	val label_color_flagged_list = IndexedSeq(new Color(255,50,50), DGE.cyan, DGE.blue)
 
 	val demineur_color_list = List (
@@ -90,7 +90,7 @@ object Demineur extends Game /*with Demineur_Graphical_Elements*/{
 
 	//##Game parameters##
 	var numeric_game_parameters_def_list = IndexedSeq(("Width", 0, 4, 25), ("Height", 0, 4, 25), ("Mines", 0, 10, 10))
-	var string_game_parameters_def_list = IndexedSeq(("Difficulty", "Easy", IndexedSeq("Easy", "Medium", "Hard", "Tricky")), ("Colours", "Normal", IndexedSeq("Normal", "Creepy-Glauque", "RVB")))
+	var string_game_parameters_def_list = IndexedSeq(("Difficulty", "Easy", IndexedSeq("Easy", "Medium", "Hard", "Tricky")), ("Colour Mode", "Classic", IndexedSeq("Classic", "Creepy-Glauque", "RVB")))
 	def nb_of_rows = numeric_game_parameters_def_list(1)._2  //fait de nb_of_rows un alias de la valeur du paramètre Height (ne marche que pour la lecture)
 	def nb_of_cols = numeric_game_parameters_def_list(0)._2  //fait de nb_of_cols un alias de la valeur du paramètre Width (ne marche que pour la lecture)
 	def nb_of_bombs = numeric_game_parameters_def_list(2)._2 //Ces deux fonctions réalisent un alias du champd valeur du 3ième paramètre numérique du Démineur
@@ -173,21 +173,18 @@ object Demineur extends Game /*with Demineur_Graphical_Elements*/{
 
 	//Met à jour le nombre de cases marquées par un drapeau en accord avec son argument. Met à jour le label du nombre de drapeaux de la fenetre (label_1)
 	def maj_nb_flag(n : Int /*normalement 1, -1 ou 0*/) = {
-		//DEBUG
 		n match {
 			case 1 => nb_flagged_square = nb_flagged_square + n 
 			case -1 => nb_flagged_square = nb_flagged_square + n
 			case 0 => nb_flagged_square = nb_flagged_square + n
 			case _ => println("anormal: la fonction maj_nb_flag de l'objet Demineur a été appelée avec un argument différent de 1, -1 ou 0:" + n)
 		}
-		//DEBUG
 		val label_1 = game_frame_content.label_1
 		label_1.text = "Mines : " + nb_flagged_square.toString + " / " + nb_of_bombs.toString
 		if (nb_flagged_square > nb_of_bombs)
 			label_1.foreground = red
 		else
 			label_1.foreground = black
-		//DEBUG
 	}
 
 	//Est appelée lors du premier clic sur un label.

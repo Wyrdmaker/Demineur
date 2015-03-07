@@ -13,6 +13,33 @@ abstract class Grid_Label extends Label{
 	var y = 0
 	var numero = 0
 	var state: String
+
+	//Ces fonctions sont à overrider par les labels des jeux pour définir leurs réactions face à différents évènements de souris
+	def mouse_enter_reaction () ={	//Lorsque la souris entre dans la zone du label
+	}
+	def mouse_exit_reaction () ={	//Lorsque la souris quitte la zone du label
+	}
+	def mouse_leftclic_reaction () ={	//Lorsque le label est cliqué avec le clic gauche
+	}
+	def mouse_middleclic_reaction () ={	//Lorsque le label est cliqué avec le clic central
+	}
+	def mouse_rightclic_reaction () ={	//Lorsque le label est cliqué avec le clic droit
+	}
+	reactions += {
+		case e: MouseEntered =>
+			mouse_enter_reaction()
+		case e: MouseExited =>
+			mouse_exit_reaction()
+		case e: MouseClicked =>
+			e.peer.getButton match {
+				case java.awt.event.MouseEvent.BUTTON1 =>
+					mouse_leftclic_reaction()
+				case java.awt.event.MouseEvent.BUTTON2 =>
+					mouse_middleclic_reaction()
+				case java.awt.event.MouseEvent.BUTTON3 =>
+					mouse_rightclic_reaction()
+			}					
+	}
 }
 
 //Est ce qu'on pourrait se défaire du paramètrage de Grid avec Game_Label_Class en allant chercher le type Game_Label_Class de game ??

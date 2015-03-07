@@ -10,7 +10,7 @@ import scala.swing.ComboBox
 //import javax.swing.{ImageIcon, Icon}
 
 
-trait Colors {
+trait GUI_Colours {
 	val black = new Color(0,0,0,255)
 	val black_dim = new Color(0,0,0,50)
 	val white = new Color(255,255,255)
@@ -27,7 +27,7 @@ trait Colors {
 	val bleu_clair = new Color(50,205,255)
 }
 
-trait Label_Borders extends Colors{
+trait Label_Borders extends GUI_Colours{
 	// Le deuxième paramètre de Swing.LineBorder est l'épaisseur
 	val black_border = Swing.LineBorder(black,1)
 	val black_dim_border = Swing.LineBorder(black_dim,1)
@@ -91,7 +91,7 @@ object Game_Parameters_Value_Setters {
 }
 
 //Signature d'un jeu
-abstract class Game extends Colors{
+abstract class Game extends GUI_Colours{
 	val title: String
 	val square_size_x: Int 	//largeur des cases
 	val square_size_y: Int	//hauteur des cases

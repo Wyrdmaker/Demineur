@@ -75,18 +75,20 @@ class Demineur_Label extends Grid_Label with Demineur_Label_States_Manager /*wit
 		listenTo(mouse.moves, mouse.clicks)
 	}
 
-	reactions += {
-		case e : MouseEntered =>
-			if (!discovered) 
-				border = DGE.blue_border
-		case e : MouseExited =>
-			if (!discovered)
-				border = DGE.black_border
-		case e : MouseClicked =>
-			if (e.peer.getButton == java.awt.event.MouseEvent.BUTTON1 && !flag)
-				discover()
-			else if (e.peer.getButton == java.awt.event.MouseEvent.BUTTON3)
-				flag_unflag()
+	override def mouse_enter_reaction () ={
+		if (!discovered) 
+			border = DGE.blue_border
+	}
+	override def mouse_exit_reaction () ={
+		if (!discovered)
+			border = DGE.black_border	
+	}
+	override def mouse_leftclic_reaction () ={
+		if (!flag)
+			discover()
+	}
+	override def mouse_rightclic_reaction () = {
+		flag_unflag()
 	}
 	
 	def flag_unflag() : Unit = {
