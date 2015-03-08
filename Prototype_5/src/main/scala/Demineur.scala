@@ -10,7 +10,7 @@ import scala.math._
 //import javax.swing.{ImageIcon, Icon}
 
 //"DGE" -> "Demineur_Graphical_Element"
-object DGE extends GUI_Graphics{
+object DGE extends GUI_Graphical_Elements{
 	def no_color_mode () = {
 		//Le max est une sécurité. Si IndexOf ne trouve pas la chaine correspondant au mode de couleur dans la liste de ses valeurs possibles, il renvoie -1.
 		//Ainsi, en cas de faute de frappe, le mode de couleur utilisé est le Normal
