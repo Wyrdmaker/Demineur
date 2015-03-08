@@ -5,28 +5,26 @@ import java.util.{Date, Locale}
 import java.text.DateFormat
 import java.text.DateFormat._
 import java.text.SimpleDateFormat
+import scala.math._
 //import java.awt.event.{ActionEvent, ActionListener}
-
-
 //import javax.swing.{ImageIcon, Icon}
-/*
-trait Demineur_Colors extends Colors {
-	val label_color_unexplored = /*new Color(255,100,0)*/ purple /*new Color(255,0,255)*/
-	val label_color_explored = /*new Color(255,200,100)*/ new Color(50,50,50) /*new Color(50,205,255)*/
-	val label_color_flagged = /*new Color(255,50,50)*/ cyan /*new Color(30,255,30) */
 
-}*/
 //"DGE" -> "Demineur_Graphical_Element"
 object DGE extends GUI_Colours with Label_Borders{
 	//var label_color_unexplored = /*new Color(255,100,0)*/ red /*new Color(255,0,255)*/
 	//var label_color_explored = /*new Color(255,200,100)*/ new Color(50,50,50) /*new Color(50,205,255)*/
 	//var label_color_flagged = /*new Color(255,50,50)*/ cyan /*new Color(30,255,30) */
 	def no_color_mode () = {
+		/*
 		Demineur.color_parameter match {
 			case "Creepy-Glauque" => 1
 			case "RVB" => 2
 			case _ => 0
 		}
+		*/
+		//Le max est une sécurité. Si IndexOf ne trouve pas la chaine correspondant au mode de couleur dans la liste de ses valeurs possibles, il renvoie -1.
+		//Ainsi, en cas de faute de frappe, le mode de couleur utilisé est le Normal
+		max(0,Demineur.string_game_parameters_def_list(1)._3.indexOf(Demineur.string_game_parameters_def_list(1)._2))
 	}
 
 	def label_color_unexplored () = {
@@ -55,18 +53,6 @@ object DGE extends GUI_Colours with Label_Borders{
 	light_brown
 )
 }
-/*trait Demineur_Graphical_Elements extends Demineur_Colors with Label_Borders {
-	val demineur_color_list = List (
-		white,
-		blue,
-		green,
-		red,
-		cyan,
-		purple,
-		light_green,
-		light_brown
-	)
-}*/
 
 class Demineur_Help_Frame extends Frame {
 	title = "Help"

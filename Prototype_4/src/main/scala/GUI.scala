@@ -269,6 +269,8 @@ class UI (game: Game) extends MainFrame {
 		contents += new Menu("Game") {
 			contents += new MenuItem(""){action = Action("Restart")(Action_Restart.action_restart())}
 			contents += new MenuItem(""){action = Action("Random Seed...")(action_generic_random_seed())}
+			contents += new MenuItem("")
+			contents += new MenuItem(""){action = Action("Exit") {System.exit(0)}}
 		}
 		contents += new Menu("Help") {
 			contents += new MenuItem(""){action = Action("About")(game.about_frame_factory())}
