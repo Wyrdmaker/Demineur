@@ -168,8 +168,10 @@ class Game_Frame_Content[Game_Label_Class <: Grid_Label] (game: Game) {
 	val final_content = border_panel
 }
 
+/*Inutile Ici, conservé pour références futures
 //Une exception lancée par la fonction game_custom_mode d'un jeu lorsque les paramètres numériques renvoyés par le formulaire ne permettent pas de créer une partie du jeu
 case class Custom_Mode_Exception(value: String) extends Throwable{}
+*/
 
 //UI est la fenetre principale des jeux
 class UI (game: Game) extends MainFrame {
@@ -209,7 +211,6 @@ class UI (game: Game) extends MainFrame {
 					(parameter_name, parameter_possible_values)
 			}
 		)
-		try {
 			val custom_game_form = new Form(
 				"Custom Game",
 				nb_fields_def_list,
@@ -225,11 +226,6 @@ class UI (game: Game) extends MainFrame {
 				Game_Starter.generic_game_starter()
 			}
 			else {println("le formulaire a été fermé")}
-
-		}
-		catch {
-			case e: Custom_Mode_Exception => ();
-		}
 	}
 	//"MIM" signifie "MenuItemMaker"
 	class Playmenu_MIM(difficulty_mode: Difficulty_Mode) extends MenuItem(""){ //Fabrique un élément du menu Play à partir de l'un des modes de difficulté spécifiés par le jeu
@@ -278,34 +274,34 @@ class UI (game: Game) extends MainFrame {
 		}
 	}
 
-class Generic_Action_Restart (game: Game) {
-	def action_restart() ={
-		if (game.game_frame_content != null) {
-			game.game_action_restart()
-			val outcome_label = game.game_frame_content.outcome_label
-			outcome_label.text = ""
+	class Generic_Action_Restart (game: Game) {
+		def action_restart() ={
+			if (game.game_frame_content != null) {
+				game.game_action_restart()
+				val outcome_label = game.game_frame_content.outcome_label
+				outcome_label.text = ""
 
-			game.game_beginning_time = new Date()
-			game.in_game = true
+				game.game_beginning_time = new Date()
+				game.in_game = true
 
-			val timer_label = game.game_frame_content.timer_label
-			timer_label.restart(game.game_beginning_time)
+				val timer_label = game.game_frame_content.timer_label
+				timer_label.restart(game.game_beginning_time)
+			}
 		}
 	}
-}
 
-class Generic_Game_Starter (game: Game, ui: Frame) {
-	def generic_game_starter (): Unit ={
-		game.game_action_restart()
+	class Generic_Game_Starter (game: Game, ui: Frame) {
+		def generic_game_starter (): Unit ={
+			game.game_action_restart()
 
-		game.game_beginning_time = new Date()
-		val game_frame_content = new Game_Frame_Content[game.Game_Label_Class](game)
-		game.game_frame_content = game_frame_content
-		ui.contents = game_frame_content.final_content
-		game_frame_content.timer_label.restart(new Date())
-		game.game_starter()
-		game.in_game = true
+			game.game_beginning_time = new Date()
+			val game_frame_content = new Game_Frame_Content[game.Game_Label_Class](game)
+			game.game_frame_content = game_frame_content
+			ui.contents = game_frame_content.final_content
+			game_frame_content.timer_label.restart(new Date())
+			game.game_starter()
+			game.in_game = true
+		}
 	}
-}
 }
 
