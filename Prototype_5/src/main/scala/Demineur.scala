@@ -11,17 +11,7 @@ import scala.math._
 
 //"DGE" -> "Demineur_Graphical_Element"
 object DGE extends GUI_Colours with Label_Borders{
-	//var label_color_unexplored = /*new Color(255,100,0)*/ red /*new Color(255,0,255)*/
-	//var label_color_explored = /*new Color(255,200,100)*/ new Color(50,50,50) /*new Color(50,205,255)*/
-	//var label_color_flagged = /*new Color(255,50,50)*/ cyan /*new Color(30,255,30) */
 	def no_color_mode () = {
-		/*
-		Demineur.color_parameter match {
-			case "Creepy-Glauque" => 1
-			case "RVB" => 2
-			case _ => 0
-		}
-		*/
 		//Le max est une sécurité. Si IndexOf ne trouve pas la chaine correspondant au mode de couleur dans la liste de ses valeurs possibles, il renvoie -1.
 		//Ainsi, en cas de faute de frappe, le mode de couleur utilisé est le Normal
 		max(0,Demineur.string_game_parameters_def_list(1)._3.indexOf(Demineur.string_game_parameters_def_list(1)._2))
@@ -37,10 +27,9 @@ object DGE extends GUI_Colours with Label_Borders{
 		label_color_flagged_list(no_color_mode)
 	}
 
-
-	val label_color_unexplored_list = IndexedSeq(new Color(255,100,0), new Color(255, 0, 255), DGE.green)
-	val label_color_explored_list = IndexedSeq(new Color(255,200,100), new Color(65,65,65), DGE.red)
-	val label_color_flagged_list = IndexedSeq(new Color(255,50,50), DGE.cyan, DGE.blue)
+	val label_color_unexplored_list = IndexedSeq(new Color(255,100,0), new Color(255, 0, 255), DGE.green, new Color(205,51,51))
+	val label_color_explored_list = IndexedSeq(new Color(255,200,100), new Color(65,65,65), DGE.red, new Color(139,69,19))
+	val label_color_flagged_list = IndexedSeq(new Color(255,50,50), DGE.cyan, DGE.blue, new Color(255,127,0))
 
 	val demineur_color_list = List (
 	white,
@@ -69,14 +58,14 @@ class Demineur_About_Frame extends Frame{
 object Demineur extends Game /*with Demineur_Graphical_Elements*/{
 	val title = "Démineur"
 
-	val square_size_x = 35
-	val square_size_y = 35
+	val square_size_x = 30
+	val square_size_y = 30
 	var game_beginning_time: Date = null
 	//var in_game = false héritée de Game
 
 	//##Game parameters##
 	var numeric_game_parameters_def_list = IndexedSeq(("Width", 0, 4, 25), ("Height", 0, 4, 25), ("Mines", 0, 10, 10))
-	var string_game_parameters_def_list = IndexedSeq(("Difficulty", "Easy", IndexedSeq("Easy", "Medium", "Hard", "Tricky")), ("Colour Mode", "Classic", IndexedSeq("Classic", "Creepy-Glauque", "RVB")))
+	var string_game_parameters_def_list = IndexedSeq(("Difficulty", "Easy", IndexedSeq("Easy", "Medium", "Hard", "Tricky")), ("Colour Mode", "Classic", IndexedSeq("Classic", "Creepy-Glauque", "RVB", "Automne")))
 	def nb_of_rows = numeric_game_parameters_def_list(1)._2  //fait de nb_of_rows un alias de la valeur du paramètre Height (ne marche que pour la lecture)
 	def nb_of_cols = numeric_game_parameters_def_list(0)._2  //fait de nb_of_cols un alias de la valeur du paramètre Width (ne marche que pour la lecture)
 	def nb_of_bombs = numeric_game_parameters_def_list(2)._2 //Ces deux fonctions réalisent un alias du champd valeur du 3ième paramètre numérique du Démineur
