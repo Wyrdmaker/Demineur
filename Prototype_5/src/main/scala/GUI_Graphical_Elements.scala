@@ -26,6 +26,6 @@ trait GUI_Graphical_Elements {
 }
 
 //"GE" -> "Graphical Elements"
-object GUI_GE extends GUI_Graphics{
+object GUI_GE extends GUI_Graphical_Elements{
 	//Pour disposer d'une couleur ou d'une bordure sans avoir à hériter de GUI_Graphics
 }
