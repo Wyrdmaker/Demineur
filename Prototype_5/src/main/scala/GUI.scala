@@ -9,30 +9,6 @@ import java.awt.event.{ActionEvent, ActionListener}
 import scala.swing.ComboBox
 //import javax.swing.{ImageIcon, Icon}
 
-
-trait GUI_Colours {
-	val black = new Color(0,0,0,255)
-	val black_dim = new Color(0,0,0,50)
-	val white = new Color(255,255,255)
-	val blue = new Color(0,0,255)
-	val green = new Color(0,200,0)
-	val red = new Color(255,0,0)
-	val cyan = new Color(0,255,255)
-	val purple = new Color(150,0,175)
-	val light_green = new Color(50,200,120)
-	val light_brown = new Color(200,120,50)
-	val color9 = new Color(0,200,200)
-
-	val violet_fluo = new Color(255,0,255)
-	val bleu_clair = new Color(50,205,255)
-}
-
-trait Label_Borders extends GUI_Colours{
-	// Le deuxième paramètre de Swing.LineBorder est l'épaisseur
-	val black_border = Swing.LineBorder(black,1)
-	val black_dim_border = Swing.LineBorder(black_dim,1)
-	val blue_border = Swing.LineBorder(blue,1)
-}
 //Chaque jeu doit l'instancier avec deux tableaux de valeurs correspondant aux valeurs de paramètres de jeu numériques et textuels 
 //pour définir les modes de difficulté qu'il souhaite proposer et les regrouper dans la variable game_difficulty_mode_list sous la forme d'une IndexedSeq
 case class Difficulty_Mode(numeric_game_parameters_values_list: IndexedSeq[Int], string_game_parameters_values_list: IndexedSeq[String]) {
@@ -91,7 +67,7 @@ object Game_Parameters_Value_Setters {
 }
 
 //Signature d'un jeu
-abstract class Game extends GUI_Colours{
+abstract class Game{
 	val title: String
 	val square_size_x: Int 	//largeur des cases
 	val square_size_y: Int	//hauteur des cases
@@ -130,7 +106,7 @@ abstract class Game extends GUI_Colours{
 		val timer_label = game_frame_content.timer_label
 		val grid_content = game_frame_content.grid.get_contents
 		outcome_label.text = "WIN !"
-		outcome_label.background = green
+		outcome_label.background = new Color(0,200,0)
 		timer_label.stop()
 		grid_content.foreach(label => label.deafTo(label.mouse.moves, label.mouse.clicks))
 	}
@@ -140,11 +116,13 @@ abstract class Game extends GUI_Colours{
 		val timer_label = game_frame_content.timer_label
 		val grid_content = game_frame_content.grid.get_contents
 		outcome_label.text = "GAME OVER !"
-		outcome_label.background = red
+		outcome_label.background = new Color(255,0,0)
 		timer_label.stop()
 		grid_content.foreach(label => label.deafTo(label.mouse.moves, label.mouse.clicks))		
 	}
 }
+
+//Crée le contenu de la fenetre de jeu (labels du bandeau inférieur et grille)
 class Game_Frame_Content[Game_Label_Class <: Grid_Label] (game: Game) extends GridBagPanel {
     def constraints(x: Int, y: Int, 
 		    gridwidth: Int = 1, gridheight: Int = 1,
@@ -183,58 +161,6 @@ class Game_Frame_Content[Game_Label_Class <: Grid_Label] (game: Game) extends Gr
 
 
 	val final_content = this
-}
-
-
-//Crée le contenu de la fenetre de jeu (labels du bandeau inférieur et grille)
-class aGame_Frame_Content[Game_Label_Class <: Grid_Label] (game: Game) {
-	val label_1 = new Label()
-	val label_2 = new Label()
-	val outcome_label = new Label()
-		outcome_label.opaque = true
-	val timer_label = new Timer_Label(game.game_beginning_time)
-	val grid = new Grid[Game_Label_Class](game)
-	val bottom_panel = new FlowPanel() {
-		contents += label_1
-		contents += label_2
-		contents += outcome_label
-		contents += timer_label
-	}
-/*
-	val resize_reactor= new Object with Reactor
-	resize_reactor.listenTo(bottom_panel)
-	//bottom_panel.contents.foreach(component => resize_reactor.listenTo(component))
-	resize_reactor.reactions += {
-		case UIElementResized(uielement) => {
-			bottom_panel.minimumSize = new Dimension(bottom_panel.preferredSize.width + 3, bottom_panel.preferredSize.height)
-			bottom_panel.maximumSize = new Dimension(bottom_panel.preferredSize.width + 3, bottom_panel.preferredSize.height)
-		}
-	}*/
-
-	/*
-	val timer_listener = new ActionListener{
-		def actionPerformed(e: ActionEvent) {
-			//println("min width: " + thisui.minimumSize.width + "  min height: " + thisui.minimumSize.height)
-			//bottom_panel.maximumSize = bottom_panel.preferredSize
-		}
-	}
-
-	val timer = new javax.swing.Timer(1000, timer_listener)
-	timer.start()
-	*/
-
-	val box_panel = new BoxPanel(Orientation.Vertical) {
-		contents += grid
-		contents += bottom_panel
-	}
-
-
-
-	/*val border_panel = new BorderPanel{
-		layout(box_panel)=North
-		layout(bottom_panel)=South
-	}*/
-	val final_content = box_panel
 }
 
 /*Inutile Ici, conservé pour références futures
@@ -378,38 +304,15 @@ class UI (game: Game) extends MainFrame {
 
 		}
 	}
+
+	//Inutile mais conservé pour réfèrence future
 	/*
 	val resize_reactor = new Object with Reactor
 	resize_reactor.listenTo(thisui)
-	thisui.contents.foreach (component => resize_reactor.listenTo(component))
 	resize_reactor.reactions += {
 		case UIElementResized(uielement) => {
-			//println("I was resized")
-			//println(game.game_frame_content.final_content.preferredSize.width)
-			//println(game.game_frame_content.final_content.preferredSize.height)
-			//if (uielement == thisui) {
-				/*val thisui_minimum_width = thisui.contents.foldLeft[Int](0)((width:Int, cmp: Component) => width + cmp.minimumSize.width)
-				val thisui_minimum_height = thisui.contents.foldLeft[Int](0)((height:Int, cmp: Component) => height + cmp.minimumSize.height) +
-					thisui.menuBar.size.height
-				thisui.minimumSize = new Dimension(thisui_minimum_width, thisui_minimum_height)*/
-				thisui.minimumSize = thisui.preferredSize
-			//}
+			}
 		}
 	}*/
-
-	//minimumSize = new Dimension(game.square_size_x * game.numeric_game_parameters_def_list(0)._2, game.square_size_y * game.numeric_game_parameters_def_list(1)._2 )
-	//minimumSize = new Dimension(500, 500)
-
-	/*
-	val timer_listener = new ActionListener{
-		def actionPerformed(e: ActionEvent) {
-			//println("min width: " + thisui.minimumSize.width + "  min height: " + thisui.minimumSize.height)
-			//thisui.minimumSize = thisui.preferredSize
-		}
-	}
-
-	val timer = new javax.swing.Timer(1500, timer_listener)
-	timer.start()
-	*/
 }
 

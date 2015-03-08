@@ -9,13 +9,13 @@ abstract class Demineur_Label_State extends Label_State[Demineur_Label] {
 	//val size_x = Demineur.square_size_x
 	//val size_y = Demineur.square_size_y
 	val opaque = true
-	val foreground = DGE.black
+	val foreground = GUI_GE.black
 }
 
 class Label_State_Unexplored extends Demineur_Label_State{
 	val state_name = "unexplored"
 
-	val label_border = DGE.black_border
+	val label_border = DGE.border(DGE.black)
 	val background = DGE.label_color_unexplored
 	val text = ""
 }
@@ -23,7 +23,7 @@ class Label_State_Unexplored extends Demineur_Label_State{
 class Label_State_Explored extends Demineur_Label_State {
 	val state_name = "explored"
 
-	val label_border = DGE.black_dim_border
+	val label_border = DGE.border(DGE.black_dim)
 	val background = DGE.label_color_explored
 	val text = ""
 	override def change_to_state(d_label: Demineur_Label) = {
@@ -43,7 +43,7 @@ class Label_State_Explored extends Demineur_Label_State {
 class Label_State_Flagged extends Demineur_Label_State {
 	val state_name = "flagged"
 
-	val label_border = DGE.black_border
+	val label_border = DGE.border(DGE.black)
 	val background = DGE.label_color_flagged
 	val text = ""
 }
@@ -64,7 +64,7 @@ trait Demineur_Label_States_Manager {
 }
 
 class Demineur_Label extends Grid_Label with Demineur_Label_States_Manager /*with Demineur_Graphical_Elements*/{
-	var state = "unexplored" //valeur nécessaire pour que les Demineurs_Label puissnet etre instanciés par Grid main, inutile sinon
+	var state = "unexplored" //valeur nécessaire pour que les Demineurs_Label puissent etre instanciés par Grid main, inutile sinon
 	var discovered = false
 	var flag = false
 	var value = "?"
@@ -81,12 +81,12 @@ class Demineur_Label extends Grid_Label with Demineur_Label_States_Manager /*wit
 	}
 
 	override def mouse_enter_reaction () ={
-		if (!discovered) 
-			border = DGE.blue_border
+		if (!discovered)
+			border = DGE.highlighted_border
 	}
 	override def mouse_exit_reaction () ={
 		if (!discovered)
-			border = DGE.black_border	
+			border = DGE.border(DGE.black)
 	}
 	override def mouse_leftclic_reaction () ={
 		if (!flag)

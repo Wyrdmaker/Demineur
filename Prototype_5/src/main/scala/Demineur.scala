@@ -10,7 +10,7 @@ import scala.math._
 //import javax.swing.{ImageIcon, Icon}
 
 //"DGE" -> "Demineur_Graphical_Element"
-object DGE extends GUI_Colours with Label_Borders{
+object DGE extends GUI_Graphics{
 	def no_color_mode () = {
 		//Le max est une sécurité. Si IndexOf ne trouve pas la chaine correspondant au mode de couleur dans la liste de ses valeurs possibles, il renvoie -1.
 		//Ainsi, en cas de faute de frappe, le mode de couleur utilisé est le Normal
@@ -27,9 +27,16 @@ object DGE extends GUI_Colours with Label_Borders{
 		label_color_flagged_list(no_color_mode)
 	}
 
-	val label_color_unexplored_list = IndexedSeq(new Color(255,100,0), new Color(255, 0, 255), DGE.green, new Color(205,51,51))
-	val label_color_explored_list = IndexedSeq(new Color(255,200,100), new Color(65,65,65), DGE.red, new Color(139,69,19))
-	val label_color_flagged_list = IndexedSeq(new Color(255,50,50), DGE.cyan, DGE.blue, new Color(255,127,0))
+	def highlighted_border () ={
+		highlighted_border_list(no_color_mode)
+	}
+
+	val label_color_unexplored_list = IndexedSeq(new Color(255,100,0), new Color(255, 0, 255), green, new Color(205,51,51), new Color(0,0,190))
+	val label_color_explored_list = IndexedSeq(new Color(255,200,100), new Color(65,65,65), red, new Color(139,69,19), new Color(30, 144, 255))
+	val label_color_flagged_list = IndexedSeq(new Color(255,50,50), cyan, blue, new Color(255,127,0), new Color(3, 180, 204))
+	val highlighted_border_list = IndexedSeq(border(blue,2), border(blue,2), border(blue,2), border(tan1,2), border(cyan,2))
+
+	val bottom_panel_color_list = IndexedSeq(white, cyan, white, tan1, dodger_blue)
 
 	val demineur_color_list = List (
 	white,
@@ -55,7 +62,7 @@ class Demineur_About_Frame extends Frame{
 	visible = true
 }
 
-object Demineur extends Game /*with Demineur_Graphical_Elements*/{
+object Demineur extends Game{
 	val title = "Démineur"
 
 	val square_size_x = 30
@@ -65,7 +72,7 @@ object Demineur extends Game /*with Demineur_Graphical_Elements*/{
 
 	//##Game parameters##
 	var numeric_game_parameters_def_list = IndexedSeq(("Width", 0, 4, 25), ("Height", 0, 4, 25), ("Mines", 0, 10, 10))
-	var string_game_parameters_def_list = IndexedSeq(("Difficulty", "Easy", IndexedSeq("Easy", "Medium", "Hard", "Tricky")), ("Colour Mode", "Classic", IndexedSeq("Classic", "Creepy-Glauque", "RVB", "Automne")))
+	var string_game_parameters_def_list = IndexedSeq(("Difficulty", "Easy", IndexedSeq("Easy", "Medium", "Hard", "Tricky")), ("Colour Mode", "Classic", IndexedSeq("Classic", "Creepy-Glauque", "RVB", "Automne", "Ocean")))
 	def nb_of_rows = numeric_game_parameters_def_list(1)._2  //fait de nb_of_rows un alias de la valeur du paramètre Height (ne marche que pour la lecture)
 	def nb_of_cols = numeric_game_parameters_def_list(0)._2  //fait de nb_of_cols un alias de la valeur du paramètre Width (ne marche que pour la lecture)
 	def nb_of_bombs = numeric_game_parameters_def_list(2)._2 //Ces deux fonctions réalisent un alias du champd valeur du 3ième paramètre numérique du Démineur
@@ -84,9 +91,9 @@ object Demineur extends Game /*with Demineur_Graphical_Elements*/{
 	//var game_frame_content héritée de Game
 
 	val game_difficulty_mode_list = IndexedSeq(
-		Difficulty_Mode(IndexedSeq(9, 9, 10),IndexedSeq("Easy", "Normal")),
-		Difficulty_Mode(IndexedSeq(16, 16, 40),IndexedSeq("Medium", "Normal")),
-		Difficulty_Mode(IndexedSeq(16, 16, 99),IndexedSeq("Hard", "Normal"))	
+		Difficulty_Mode(IndexedSeq(9, 9, 10),IndexedSeq("Easy", "Classic")),
+		Difficulty_Mode(IndexedSeq(16, 16, 40),IndexedSeq("Medium", "Classic")),
+		Difficulty_Mode(IndexedSeq(16, 16, 99),IndexedSeq("Hard", "Classic"))	
 	)
 	def custom_game_parameters_conditions (form_nb_fields_result: IndexedSeq[Int]) ={ //form_nb_fields_result(0) = nb_of_cols, form_nb_fields_result(1) = nb_of_rows, form_nb_fields_result(2) = nb_of_bombs
 		//val return_value = form_nb_fields_result(1) * form_nb_fields_result(0) > 9 && form_nb_fields_result(2) + 9 <= form_nb_fields_result(1) * form_nb_fields_result(0)
@@ -101,6 +108,7 @@ object Demineur extends Game /*with Demineur_Graphical_Elements*/{
 
 	def game_starter () = {
 		Demineur.maj_nb_flag(0)
+		game_frame_content.bottom_panel.background = DGE.bottom_panel_color_list(DGE.no_color_mode)
 	}
 	def game_action_restart() : Unit = {
 		if (Demineur.game_frame_content != null) {
@@ -162,9 +170,9 @@ object Demineur extends Game /*with Demineur_Graphical_Elements*/{
 		val label_1 = game_frame_content.label_1
 		label_1.text = "Mines : " + nb_flagged_square.toString + " / " + nb_of_bombs.toString
 		if (nb_flagged_square > nb_of_bombs)
-			label_1.foreground = red
+			label_1.foreground = DGE.red
 		else
-			label_1.foreground = black
+			label_1.foreground = DGE.black
 	}
 
 	//Est appelée lors du premier clic sur un label.
