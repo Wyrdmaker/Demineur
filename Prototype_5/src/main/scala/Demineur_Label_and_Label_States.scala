@@ -1,5 +1,9 @@
 import scala.swing._
 import scala.swing.event._
+import java.util.{Date, Locale}
+import java.text.DateFormat
+import java.text.DateFormat._
+import java.text.SimpleDateFormat
 
 abstract class Demineur_Label_State extends Label_State[Demineur_Label] {
 	//val size_x = Demineur.square_size_x
@@ -114,6 +118,7 @@ class Demineur_Label extends Grid_Label with Demineur_Label_States_Manager /*wit
 			Demineur.increment_nb_discovered_square()
 			if (value == "?") //ie ce label est le premier à etre cliqué dans cette partie
 				Demineur.place_bombs(numero)
+				Demineur.game_frame_content.timer_label.start() //lance le timer au premier clic sur une case de l'utilisateur
 			change_to_state(this,"explored")
 			value match {
 				case "b" =>

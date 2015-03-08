@@ -368,6 +368,7 @@ class UI (game: Game) extends MainFrame {
 			game.game_frame_content = game_frame_content
 			ui.contents = game_frame_content//.final_content
 			game_frame_content.timer_label.restart(new Date())
+			game_frame_content.timer_label.stop() //Le jeu doit lancer le timer label quand il veut
 			game.game_starter()
 			game.in_game = true
 

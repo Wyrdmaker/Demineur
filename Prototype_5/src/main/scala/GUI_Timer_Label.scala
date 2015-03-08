@@ -21,7 +21,7 @@ class Timer_Label (time_origin_arg : Date) extends Label{
 	var time_origin = time_origin_arg
 	var minutes = ((new Date).getTime() - time_origin.getTime()) / 60000 % 60
 	var secondes = ((new Date).getTime() - time_origin.getTime()) / 1000 % 60
-	text = "0:00"
+	text = "00:00"
 
 	def restart (new_time_origin: Date) = {
 		time_origin = new_time_origin
@@ -49,6 +49,4 @@ class Timer_Label (time_origin_arg : Date) extends Label{
 	}
 
 	val timer = new javax.swing.Timer(1000, timer_listener)
-
-	//timer.start()
 }
