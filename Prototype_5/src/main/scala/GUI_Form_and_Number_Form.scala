@@ -25,7 +25,7 @@ class Secured_Number_Field(default_value: Int, inf_bound: Int, sup_bound: Int) e
 	listenTo(this)
 	reactions += {
 		case e: EditDone =>
-			if (this.text.length == 0)
+			if (this.text.length == 0 || this.text.length > 9)	//Taille du nombre limitée à 9 chiffres car sinon, .toInt renvoie l'exception: java.lang.NumberFormatException
 				this.text = default_value.toString
 			else if (!(inf_bound <= this.text.toInt && this.text.toInt <= sup_bound) && !(inf_bound == sup_bound))
 					this.text = default_value.toString
@@ -113,7 +113,7 @@ class Number_Form(titre : String, fields_names_list : IndexedSeq[String], fields
 //les élements de nb_fields_def_list sont de la forme: (nom_du_champ_numérique, bornes_inf_du_résultat_attendu, borne_sup_du_résultat_attendu) (si borne_inf et borne_sup sont égales, il n'y a pas de contraintes)
 //les éléments de comboxes_def_list sont de la forme: (nom_de_la_combobox, IndexedSeq_des_chaines_de_charactères_de_la_combobox)
 //les résulats des champs numériques sont dans l'IndexedSeq nb_fields_results. Les résultats des champs textuels (comboboxes) sont dans l'IndexedSeq comboboxes_results
-class Form(titre : String, nb_fields_def_list: IndexedSeq[(String,Int,Int)], comboboxes_def_list: IndexedSeq[(String, IndexedSeq[String])], special_condition: IndexedSeq[Int] => String) extends Dialog {
+class Form(titre : String, nb_fields_def_list: IndexedSeq[(String,Int,Int)], comboboxes_def_list: IndexedSeq[(String, IndexedSeq[String])], special_condition: IndexedSeq[Int] => String) extends Dialog{
 	val this_form = this
 	var nb_fields_results: IndexedSeq[Int] = null
 	var comboboxes_results: IndexedSeq[String] = null
@@ -132,7 +132,7 @@ class Form(titre : String, nb_fields_def_list: IndexedSeq[(String,Int,Int)], com
 		nb_fields_list = nb_fields_def_list map (nb_field_def =>
 			nb_field_def match {
 				case (nb_field_name, inf_bound, sup_bound) =>
-				new Secured_Number_Field(((inf_bound + sup_bound)/2), inf_bound, sup_bound)
+				new Secured_Number_Field(((inf_bound + sup_bound)/2), inf_bound, sup_bound)//{listenTo(this_form)}
 			}
 		)
 		nb_fields_panel = new GridPanel(nb_fields_def_list.length + 1, 2){
@@ -176,8 +176,9 @@ class Form(titre : String, nb_fields_def_list: IndexedSeq[(String,Int,Int)], com
 			action = Action("Fini")(submit)
 		}
 		def submit = {
+			//publish(new EditDone(null))
 			//Construction de nb_fields_results (IndexedSeq contenant les résultats des champs numériques)
-			if(!no_nb_fields) {
+			/*if(!no_nb_fields) {	//#Inutile car les Secured_Number_Fields empéchent de laisser des champs vides
 				var nonempty_condition = true
 				for (i <- 0 to nb_fields_results.length -1) { // Sert à vérifier que tout les champs du formulaire ont été remplis avant le clic sur le bouton "fini"
 					if (nb_fields_list(i).text.length <= 0){
@@ -189,7 +190,7 @@ class Form(titre : String, nb_fields_def_list: IndexedSeq[(String,Int,Int)], com
 
 					}
 				}
-				if (nonempty_condition == true) {
+				if (nonempty_condition == true) {*/
 					nb_fields_results = nb_fields_list map (nb_field => nb_field.text.toInt)
 					special_condition(nb_fields_results) match {
 						case "OK" => {
@@ -222,13 +223,13 @@ class Form(titre : String, nb_fields_def_list: IndexedSeq[(String,Int,Int)], com
 							}
 							error_message_window.visible = true
 						}
-					}
-					
+					}	
+				/*	//#Inutile car les Secured_Number_Fields empéchent de laisser des champs vides								
 				}
 				else {
 					println("Certains des champs du formulaire sont vides")
 				}
-			}
+			}*/
 			//Construction de comboboxes_results (IndexedSeq contenant les résultats des comboboxes)
 			if (!no_comboboxes) {
 				comboboxes_results = comboboxes_list map (combobox => combobox.item)

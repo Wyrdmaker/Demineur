@@ -181,12 +181,12 @@ class UI (game: Game) extends MainFrame {
 
 	def action_generic_random_seed() {
 		if (game.game_frame_content != null){
-			var random_seed_form = new Number_Form(
+			var random_seed_form = new Form(
 				"Random Seed",
-				IndexedSeq("Random Seed"),
-				IndexedSeq((0,0))
-				)
-			val asked_random_seed = random_seed_form.result(0)
+				IndexedSeq(("Random Seed",0,0)),
+				null,
+				any => "OK")
+			val asked_random_seed = random_seed_form.nb_fields_results(0)
 			game.random_gen = new scala.util.Random(asked_random_seed)
 
 			Game_Starter.generic_game_starter()
