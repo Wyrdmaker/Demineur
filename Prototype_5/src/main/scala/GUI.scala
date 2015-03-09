@@ -103,6 +103,7 @@ abstract class Game{
 
 	var game_beginning_time: Date //date de début de la partie pour le chronomètre
 	var in_game = false
+
 	var numeric_game_parameters_def_list: IndexedSeq[(String, Int, Int, Int)]		//liste des paramètres numériques du jeu sous la forme de tuples 
 																				//(nom, valeur, borne_inf_pour_mode_custom, borne_sup_pour_mode_custom) et dont les deux 
 																				//premiers doivent etre "Width" et "Height" (resp le nb de colonnes de la grille et 
@@ -189,7 +190,7 @@ class Game_Frame_Content[Game_Label_Class <: Grid_Label] (game: Game) extends Gr
     	constraints(0, 0, fill = GridBagPanel.Fill.Both, weightx = 1, weighty = 1))
 
 
-	val final_content = this
+	//val final_content = this
 }
 
 /*Inutile Ici, conservé pour références futures
@@ -260,6 +261,9 @@ class UI (game: Game) extends MainFrame {
 		action = Action(game_mode.get_name(game))(menuitem_action)
 	}
 
+	//Définition préventive de ces deux MenuItem pour que Generic_Game_Starter les dégrisent (enabled = true) lorsqu'une partie est lancé
+	val restart_menuitem = new MenuItem(""){action = Action("Restart")(Action_Restart.action_restart()); enabled = false}
+	val randomseed_menuitem = new MenuItem(""){action = Action("Random Seed...")(action_generic_random_seed()); enabled = false}
 	menuBar = new MenuBar {
 		contents += new Menu("Play") {	
 			game.game_game_mode_list.foreach(game_mode =>
@@ -269,8 +273,8 @@ class UI (game: Game) extends MainFrame {
 			contents += new MenuItem(""){action = Action("Custom...")(action_generic_custom_mode())}
 		}
 		contents += new Menu("Game") {
-			contents += new MenuItem(""){action = Action("Restart")(Action_Restart.action_restart())}
-			contents += new MenuItem(""){action = Action("Random Seed...")(action_generic_random_seed())}
+			contents += restart_menuitem
+			contents += randomseed_menuitem
 			contents += new MenuItem("")
 			contents += new MenuItem(""){action = Action("Exit") {System.exit(0)}}
 		}
@@ -304,10 +308,13 @@ class UI (game: Game) extends MainFrame {
 			val game_frame_content = new Game_Frame_Content[game.Game_Label_Class](game)
 			game.game_frame_content = game_frame_content
 			ui.contents = game_frame_content//.final_content
-			game_frame_content.timer_label.restart(new Date())
-			game_frame_content.timer_label.stop() //Le jeu doit lancer le timer label quand il veut
+			///game_frame_content.timer_label.restart(new Date())
+			//game_frame_content.timer_label.stop() //Le jeu doit lancer le timer label quand il veut
 			game.game_starter()
 			game.in_game = true
+			restart_menuitem.enabled = true //Dégrise les menuItem restart et random_seed
+			randomseed_menuitem.enabled = true
+
 
 			//game_frame_content.bottom_panel.maximumSize = game_frame_content.bottom_panel.preferredSize
 			thisui.minimumSize = thisui.preferredSize

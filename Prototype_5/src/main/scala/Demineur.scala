@@ -119,7 +119,7 @@ object Demineur extends Game{
 			Demineur.nb_flagged_square = 0
 			Demineur.maj_nb_flag(0)
 		}
-	}
+	}/*
 	//Définit ce qui se passe en cas de victoire du joueur -> voir Game
 	override def win() = {
 		super.win()		
@@ -127,7 +127,7 @@ object Demineur extends Game{
 	//Définit ce qui se passe en cas de défaite du joueur -> voir Game
 	override def lose() = {
 		super.lose()
-	}
+	}*/
 
 	//##Demineur Variables## // Variables internes au Démineur
 	var nb_discovered_square = 0

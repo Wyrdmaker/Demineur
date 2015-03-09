@@ -116,9 +116,10 @@ class Demineur_Label extends Grid_Label with Demineur_Label_States_Manager /*wit
 			deafTo(mouse.moves, mouse.clicks)
 			discovered = true
 			Demineur.increment_nb_discovered_square()
-			if (value == "?") //ie ce label est le premier à etre cliqué dans cette partie
+			if (value == "?") {//ie ce label est le premier à etre cliqué dans cette partie
 				Demineur.place_bombs(numero)
-				Demineur.game_frame_content.timer_label.start() //lance le timer au premier clic sur une case de l'utilisateur
+				Demineur.game_frame_content.timer_label.restart(new Date()) //lance le timer au premier clic sur une case de l'utilisateur
+			}
 			change_to_state(this,"explored")
 			value match {
 				case "b" =>
