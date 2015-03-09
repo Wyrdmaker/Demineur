@@ -20,6 +20,7 @@ abstract class Label_State[Game_Label_Class <: Grid_Label] {
 	val background: Color
 	val foreground: Color
 	val text: String
+	var custom_painting: ((Graphics2D,Label) => Unit) = ((g:Graphics2D, l:Label) => ())
 
 	def change_to_state(game_label: Game_Label_Class) = {
 		game_label.state = state_name
@@ -29,5 +30,6 @@ abstract class Label_State[Game_Label_Class <: Grid_Label] {
 		game_label.background = background
 		game_label.foreground = foreground
 		game_label.text = text
+		game_label.custom_painting = custom_painting
 	}
 }

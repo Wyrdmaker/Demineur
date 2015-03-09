@@ -21,6 +21,7 @@ trait GUI_Graphical_Elements {
 	val deep_pink = new Color(255,20,147)
 	val dark_orchid = new Color(153,50,204) //violet
 	val dodger_blue = new Color(24,116,205)
+	val yellow = new Color(255,255,0)
 	//#Bordures#//
 	def border(colour: Color = black, thickness: Int = 1) = Swing.LineBorder(colour, thickness)
 }

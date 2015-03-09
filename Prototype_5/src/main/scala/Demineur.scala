@@ -33,7 +33,7 @@ object DGE extends GUI_Graphical_Elements{
 
 	val label_color_unexplored_list = IndexedSeq(new Color(255,100,0), new Color(255, 0, 255), green, new Color(205,51,51), new Color(0,0,190))
 	val label_color_explored_list = IndexedSeq(new Color(255,200,100), new Color(65,65,65), red, new Color(139,69,19), new Color(30, 144, 255))
-	val label_color_flagged_list = IndexedSeq(new Color(255,50,50), cyan, blue, new Color(255,127,0), new Color(3, 180, 204))
+	val label_color_flagged_list = IndexedSeq(new Color(255,50,50), cyan, blue, new Color(255,127,0), /*new Color(3, 180, 204)*/ yellow)
 	val highlighted_border_list = IndexedSeq(border(blue,2), border(blue,2), border(blue,2), border(tan1,2), border(cyan,2))
 
 	val bottom_panel_color_list = IndexedSeq(white, cyan, white, tan1, dodger_blue)
@@ -119,7 +119,7 @@ object Demineur extends Game{
 			Demineur.nb_flagged_square = 0
 			Demineur.maj_nb_flag(0)
 		}
-	}/*
+	}
 	//Définit ce qui se passe en cas de victoire du joueur -> voir Game
 	override def win() = {
 		super.win()		
@@ -127,7 +127,7 @@ object Demineur extends Game{
 	//Définit ce qui se passe en cas de défaite du joueur -> voir Game
 	override def lose() = {
 		super.lose()
-	}*/
+	}
 
 	//##Demineur Variables## // Variables internes au Démineur
 	var nb_discovered_square = 0

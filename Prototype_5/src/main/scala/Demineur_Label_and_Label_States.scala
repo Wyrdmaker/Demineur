@@ -46,6 +46,15 @@ class Label_State_Flagged extends Demineur_Label_State {
 	val label_border = DGE.border(DGE.black)
 	val background = DGE.label_color_flagged
 	val text = ""
+	def f_custom_painting (g:Graphics2D, label:Label) = {
+		if (Demineur.color_parameter == "Ocean") {
+			val center = ((label.size.width/2).toInt, ((label.size.height/2).toInt))
+			g.setColor(DGE.green)
+			val radius = 15
+			g.fillOval(center._1-(radius/2),center._2-(radius/2),radius,radius)
+		}		
+	}
+	custom_painting = f_custom_painting
 }
 
 trait Demineur_Label_States_Manager {
@@ -70,6 +79,7 @@ class Demineur_Label extends Grid_Label with Demineur_Label_States_Manager /*wit
 	var value = "?"
 	font = new Font("Arial", 1, 32) // 0 pour normal, 1 pour gras, 2 pour italique ...
 	preferredSize = new Dimension(Demineur.square_size_x, Demineur.square_size_y)
+
 	init()
 
 	def init() : Unit = {

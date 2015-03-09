@@ -14,6 +14,12 @@ abstract class Grid_Label extends Label{
 	var numero = 0
 	var state: String
 
+	var custom_painting: ((Graphics2D,Label) => Unit) = ((g:Graphics2D, l:Label) => ())
+	override def paint(g: Graphics2D)={
+		super.paint(g)
+		custom_painting(g,this)
+	}
+
 	listenTo(mouse.moves, mouse.clicks)
 	//Ces fonctions sont à overrider par les labels des jeux pour définir leurs réactions face à différents évènements de souris
 	def mouse_enter_reaction () ={	//Lorsque la souris entre dans la zone du label

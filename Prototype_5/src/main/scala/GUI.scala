@@ -265,7 +265,7 @@ class UI (game: Game) extends MainFrame {
 	val restart_menuitem = new MenuItem(""){action = Action("Restart")(Action_Restart.action_restart()); enabled = false}
 	val randomseed_menuitem = new MenuItem(""){action = Action("Random Seed...")(action_generic_random_seed()); enabled = false}
 	menuBar = new MenuBar {
-		contents += new Menu("Play") {	
+		contents += new Menu("Play") {
 			game.game_game_mode_list.foreach(game_mode =>
 				contents += new Playmenu_MIM(game_mode)
 			)
