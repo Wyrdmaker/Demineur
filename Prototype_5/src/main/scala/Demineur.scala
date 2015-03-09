@@ -90,10 +90,10 @@ object Demineur extends Game{
 	//var random_gen héritée de Game
 	//var game_frame_content héritée de Game
 
-	val game_difficulty_mode_list = IndexedSeq(
-		Difficulty_Mode(IndexedSeq(9, 9, 10),IndexedSeq("Easy", "Classic")),
-		Difficulty_Mode(IndexedSeq(16, 16, 40),IndexedSeq("Medium", "Classic")),
-		Difficulty_Mode(IndexedSeq(16, 16, 99),IndexedSeq("Hard", "Classic"))	
+	val game_game_mode_list = IndexedSeq(
+		Game_Mode(IndexedSeq(9, 9, 10),IndexedSeq("Easy", "Classic")),
+		Game_Mode(IndexedSeq(16, 16, 40),IndexedSeq("Medium", "Classic")),
+		Game_Mode(IndexedSeq(16, 16, 99),IndexedSeq("Hard", "Classic"))	
 	)
 	def custom_game_parameters_conditions (form_nb_fields_result: IndexedSeq[Int]) ={ //form_nb_fields_result(0) = nb_of_cols, form_nb_fields_result(1) = nb_of_rows, form_nb_fields_result(2) = nb_of_bombs
 		//val return_value = form_nb_fields_result(1) * form_nb_fields_result(0) > 9 && form_nb_fields_result(2) + 9 <= form_nb_fields_result(1) * form_nb_fields_result(0)

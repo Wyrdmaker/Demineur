@@ -10,12 +10,12 @@ import scala.swing.ComboBox
 //import javax.swing.{ImageIcon, Icon}
 
 //Chaque jeu doit l'instancier avec deux tableaux de valeurs correspondant aux valeurs de paramètres de jeu numériques et textuels 
-//pour définir les modes de difficulté qu'il souhaite proposer et les regrouper dans la variable game_difficulty_mode_list sous la forme d'une IndexedSeq
+//pour définir les modes de difficulté qu'il souhaite proposer et les regrouper dans la variable game_game_mode_list sous la forme d'une IndexedSeq
 //Le paramètre name permet au jeu lorsqu'il définit ses modes de difficulté de donner un nom personnalisé au mode de difficulté
-case class Difficulty_Mode(numeric_game_parameters_values_list: IndexedSeq[Int], string_game_parameters_values_list: IndexedSeq[String], name:String="") {
-	def get_name (game: Game) :String = {	//L'argument game sert à Cannonical_Difficulty_Mode_Namer pour récupérer les noms des paramètres
+case class Game_Mode(numeric_game_parameters_values_list: IndexedSeq[Int], string_game_parameters_values_list: IndexedSeq[String], name:String="") {
+	def get_name (game: Game) :String = {	//L'argument game sert à Cannonical_Game_Mode_Namer pour récupérer les noms des paramètres
 		if (name==""){
-			Canonical_Difficulty_Mode_Namer.name(game:Game,numeric_game_parameters_values_list: IndexedSeq[Int], string_game_parameters_values_list: IndexedSeq[String])
+			Canonical_Game_Mode_Namer.name(game:Game,numeric_game_parameters_values_list: IndexedSeq[Int], string_game_parameters_values_list: IndexedSeq[String])
 		}
 		else {
 			name
@@ -41,24 +41,24 @@ case class Difficulty_Mode(numeric_game_parameters_values_list: IndexedSeq[Int],
 
 	}
 }
-object Canonical_Difficulty_Mode_Namer{	//Sert à la méthode get_name de Difficulty_Mode
+object Canonical_Game_Mode_Namer{	//Sert à la méthode get_name de Game_Mode
 	def name(game:Game, numeric_game_parameters_values_list: IndexedSeq[Int], string_game_parameters_values_list: IndexedSeq[String]) :String={
-		var difficulty_mode_name = numeric_game_parameters_values_list(0).toString + "x" + numeric_game_parameters_values_list(1).toString
-		// Ce gros bloc sert à remplir la variable difficulty_mode_name avec le nom du mode de difficulté, obtenu en mettant bout à bout
+		var game_mode_name = numeric_game_parameters_values_list(0).toString + "x" + numeric_game_parameters_values_list(1).toString
+		// Ce gros bloc sert à remplir la variable game_mode_name avec le nom du mode de difficulté, obtenu en mettant bout à bout
 		// les différents paramètres de jeu qui constitue le mode de difficulté
 		if (numeric_game_parameters_values_list.length > 2) {
 			for (i <- 2 until numeric_game_parameters_values_list.length) {
-				difficulty_mode_name += ", " + numeric_game_parameters_values_list(i).toString + " " + game.numeric_game_parameters_def_list(i)._1
+				game_mode_name += ", " + numeric_game_parameters_values_list(i).toString + " " + game.numeric_game_parameters_def_list(i)._1
 				//Rajoute ", <nom_du_paramètre_numérique> <valeur_du_paramètre_numérique>" au nom du mode de difficulté
 			}
 		}
 		if (string_game_parameters_values_list.length > 0) {
 			for (i <- 0 until string_game_parameters_values_list.length) {
-				difficulty_mode_name += ", " + string_game_parameters_values_list(i)
+				game_mode_name += ", " + string_game_parameters_values_list(i)
 				//Rajoute ", <valeur_du_paramètre_textuel>" au nom du mode de difficulté
 			}
 		}
-		difficulty_mode_name
+		game_mode_name
 	}
 }
 
@@ -118,7 +118,7 @@ abstract class Game{
 	var random_gen = new scala.util.Random()	//Le générateur aléatoire utilisé par le jeu
 	var game_frame_content : Game_Frame_Content[Game_Label_Class] = null 	//Variable stockant le contenu graphique de la fenetre de jeu lors d'une partie
 
-	val game_difficulty_mode_list : IndexedSeq[Difficulty_Mode] 	//Liste des modes de difficulté que le jeu veut proposer
+	val game_game_mode_list : IndexedSeq[Game_Mode] 	//Liste des modes de difficulté que le jeu veut proposer
 	def custom_game_parameters_conditions (form_nb_fields_result: IndexedSeq[Int]): String	//Une fonction qui, aux résultat des champs numériques d'un formulaire
 																							// de partie custom, vérifie des conditions propres au jeu 
 																							//(si ces paramètres permettent de jouer au jeu ou non) et 
@@ -242,28 +242,28 @@ class UI (game: Game) extends MainFrame {
 				game.custom_game_parameters_conditions)
 			val form_nb_fields_results = custom_game_form.nb_fields_results		//Les résultats numériques du formulaire
 			val form_comboboxes_results = custom_game_form.comboboxes_results	//Les résultats textuels du formulaire	 
-			var custom_difficulty_mode = Difficulty_Mode(form_nb_fields_results, form_comboboxes_results)
+			var custom_game_mode = Game_Mode(form_nb_fields_results, form_comboboxes_results)
 			if (custom_game_form.form_accepted) {	// Vérifie que le formulaire soit accepté 
 													//(en pratique, ça attend que le joueur ait cliqué
 													// sur le bouton fini),
-				custom_difficulty_mode.set_game_parameters(game)
+				custom_game_mode.set_game_parameters(game)
 				Game_Starter.generic_game_starter()
 			}
 			else {println("le formulaire a été fermé")}
 	}
 	//"MIM" signifie "MenuItemMaker"
-	class Playmenu_MIM(difficulty_mode: Difficulty_Mode) extends MenuItem(""){ //Fabrique un élément du menu Play à partir de l'un des modes de difficulté spécifiés par le jeu
+	class Playmenu_MIM(game_mode: Game_Mode) extends MenuItem(""){ //Fabrique un élément du menu Play à partir de l'un des modes de difficulté spécifiés par le jeu
 		def menuitem_action () = {
-			difficulty_mode.set_game_parameters(game)
+			game_mode.set_game_parameters(game)
 			Game_Starter.generic_game_starter()
 		}
-		action = Action(difficulty_mode.get_name(game))(menuitem_action)
+		action = Action(game_mode.get_name(game))(menuitem_action)
 	}
 
 	menuBar = new MenuBar {
 		contents += new Menu("Play") {	
-			game.game_difficulty_mode_list.foreach(difficulty_mode =>
-				contents += new Playmenu_MIM(difficulty_mode)
+			game.game_game_mode_list.foreach(game_mode =>
+				contents += new Playmenu_MIM(game_mode)
 			)
 			contents += new MenuItem("")
 			contents += new MenuItem(""){action = Action("Custom...")(action_generic_custom_mode())}
