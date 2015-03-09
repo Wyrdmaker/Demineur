@@ -11,7 +11,16 @@ import scala.swing.ComboBox
 
 //Chaque jeu doit l'instancier avec deux tableaux de valeurs correspondant aux valeurs de paramètres de jeu numériques et textuels 
 //pour définir les modes de difficulté qu'il souhaite proposer et les regrouper dans la variable game_difficulty_mode_list sous la forme d'une IndexedSeq
-case class Difficulty_Mode(numeric_game_parameters_values_list: IndexedSeq[Int], string_game_parameters_values_list: IndexedSeq[String]) {
+//Le paramètre name permet au jeu lorsqu'il définit ses modes de difficulté de donner un nom personnalisé au mode de difficulté
+case class Difficulty_Mode(numeric_game_parameters_values_list: IndexedSeq[Int], string_game_parameters_values_list: IndexedSeq[String], name:String="") {
+	def get_name (game: Game) :String = {	//L'argument game sert à Cannonical_Difficulty_Mode_Namer pour récupérer les noms des paramètres
+		if (name==""){
+			Canonical_Difficulty_Mode_Namer.name(game:Game,numeric_game_parameters_values_list: IndexedSeq[Int], string_game_parameters_values_list: IndexedSeq[String])
+		}
+		else {
+			name
+		}
+	}
 	def set_game_parameters (game: Game) ={
 		if (numeric_game_parameters_values_list.length == game.numeric_game_parameters_def_list.length) {
 			for (i <- 0 until numeric_game_parameters_values_list.length) {
@@ -30,6 +39,26 @@ case class Difficulty_Mode(numeric_game_parameters_values_list: IndexedSeq[Int],
 		}
 		else {println("Anormal: le nombre de valeurs pour les paramètres textuels du jeu déclarées dans un certain mode de difficulté n'est pas égal au nombre de paramètres textuels de ce jeu")}
 
+	}
+}
+object Canonical_Difficulty_Mode_Namer{	//Sert à la méthode get_name de Difficulty_Mode
+	def name(game:Game, numeric_game_parameters_values_list: IndexedSeq[Int], string_game_parameters_values_list: IndexedSeq[String]) :String={
+		var difficulty_mode_name = numeric_game_parameters_values_list(0).toString + "x" + numeric_game_parameters_values_list(1).toString
+		// Ce gros bloc sert à remplir la variable difficulty_mode_name avec le nom du mode de difficulté, obtenu en mettant bout à bout
+		// les différents paramètres de jeu qui constitue le mode de difficulté
+		if (numeric_game_parameters_values_list.length > 2) {
+			for (i <- 2 until numeric_game_parameters_values_list.length) {
+				difficulty_mode_name += ", " + numeric_game_parameters_values_list(i).toString + " " + game.numeric_game_parameters_def_list(i)._1
+				//Rajoute ", <nom_du_paramètre_numérique> <valeur_du_paramètre_numérique>" au nom du mode de difficulté
+			}
+		}
+		if (string_game_parameters_values_list.length > 0) {
+			for (i <- 0 until string_game_parameters_values_list.length) {
+				difficulty_mode_name += ", " + string_game_parameters_values_list(i)
+				//Rajoute ", <valeur_du_paramètre_textuel>" au nom du mode de difficulté
+			}
+		}
+		difficulty_mode_name
 	}
 }
 
@@ -228,25 +257,7 @@ class UI (game: Game) extends MainFrame {
 			difficulty_mode.set_game_parameters(game)
 			Game_Starter.generic_game_starter()
 		}
-		var difficulty_mode_name = ""
-		difficulty_mode match { // Ce gros bloc sert à remplir la variable difficulty_mode_name avec le nom du mode de difficulté, obtenu en mettant bout à bout
-								// les différents paramètres de jeu qui constitue le mode de difficulté
-			case Difficulty_Mode(numeric_game_parameters_values_list: IndexedSeq[Int], string_game_parameters_values_list: IndexedSeq[String]) =>
-				difficulty_mode_name = numeric_game_parameters_values_list(0).toString + "x" + numeric_game_parameters_values_list(1).toString
-				if (numeric_game_parameters_values_list.length > 2) {
-					for (i <- 2 until numeric_game_parameters_values_list.length) {
-						difficulty_mode_name += ", " + numeric_game_parameters_values_list(i).toString + " " + game.numeric_game_parameters_def_list(i)._1
-						//Rajoute ", <nom_du_paramètre_numérique> <valeur_du_paramètre_numérique>" au nom du mode de difficulté
-					}
-				}
-				if (string_game_parameters_values_list.length > 0) {
-					for (i <- 0 until string_game_parameters_values_list.length) {
-						difficulty_mode_name += ", " + string_game_parameters_values_list(i)
-						//Rajoute ", <valeur_du_paramètre_textuel>" au nom du mode de difficulté
-					}
-				}
-		}
-		action = Action(difficulty_mode_name)(menuitem_action)
+		action = Action(difficulty_mode.get_name(game))(menuitem_action)
 	}
 
 	menuBar = new MenuBar {
