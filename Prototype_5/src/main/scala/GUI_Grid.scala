@@ -66,6 +66,10 @@ class Grid[Game_Label_Class <: Grid_Label] (game: Game) extends GridPanel(game.n
 		}
 	}
 	minimumSize = new Dimension(game.square_size_x * game.numeric_game_parameters_def_list(0)._2, game.square_size_y * game.numeric_game_parameters_def_list(1)._2 )
+
+	/*//Test
+	revalidate()
+	repaint()*/
 	
 	//Renvoit le label de la case (x,y) (x et y commencent à 0)
 	def access_xy(x: Int, y: Int) ={
